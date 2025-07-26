@@ -9,7 +9,7 @@ cmd({
     react: "🎙️",
     filename: __filename
 },
-async (conn, sock, mek, m, { from, quoted, sender, reply }) => {
+async (conn, mek, m, { from, quoted, sender, reply }) => {
     try {
         const songUrls = [
             "https://files.catbox.moe/dcxfi1.mp3",
