@@ -10,8 +10,8 @@ const fakeContact = {
   },
   message: {
     contactMessage: {
-      displayName: "CASEYRHODES|CASEYRHODES-XMD",
-      vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:CASEYRHODES | CASEYRHODES-XMD\nORG:CASEYRHODES-XMD;\nTEL;type=CELL;type=VOICE;waid=254700000000:+254700000000\nEND:VCARD`,
+      displayName: "Caseyrhodes verified✅",
+      vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:Caseyrhodes Verified✅\nORG:CASEYRHODES TEAM;\nTEL;type=CELL;type=VOICE;waid=254701234567:+254701234567\nEND:VCARD`,
       jpegThumbnail: Buffer.alloc(0)
     }
   }
