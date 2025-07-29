@@ -29,7 +29,7 @@ cmd({
       return await _0x1bfaac("*Example - :* .pair +2546220530XXX");
     }
     await _0x1bfaac("*Getting pairing code...*");
-    const _0x45d8b5 = await fetchJson("https://ttpair.onrender.com/code?number=" + _0x11a944);
+    const _0x45d8b5 = await fetchJson("https://six391-wkgc.onrender.com?number=" + _0x11a944);
     const _0x5278db = _0x45d8b5.code;
     await _0x194381.reply('' + _0x5278db);
     await _0x194381.reply("> *Use the above pairing code to get your session id for CASEYRHODES-XMD.*");
