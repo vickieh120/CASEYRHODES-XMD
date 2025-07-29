@@ -728,7 +728,7 @@ cmd(_0x19cdd8, async (_0x3b5d59, _0x500dad, _0xdfb924, {
   }
 });
 const _0x53f490 = {
-  'pattern': "join",
+  'pattern': "join2",
   'react': '📬',
   'alias': ["joinme", "f_join"],
   'desc': "To Join a Group from Invite link",
@@ -1265,7 +1265,7 @@ cmd(_0x53a4af, async (_0x4b7a1c, _0x355fbd, _0xc06583, {
   }
 });
 const _0x3220aa = {
-  'pattern': "hidetag",
+  'pattern': "hidetag2",
   'react': '🔊',
   'alias': ["tag", "f_tag"],
   'desc': "To Tag all Members for Message",
