@@ -145,9 +145,10 @@ You will need a session ID to run CASEYRHODES-XMD. Click the button below to obt
 </p>
 
 ## CASEYRHODES SUPPORT 
++
 <a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Black+Ops+One&size=100&pause=1000&color=FF0000&center=true&width=1000&height=200&lines=𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐗𝐓𝐄𝐂𝐇 🌟" alt="Typing SVG" /></a>
   </p>
-
++
 
 
 ## 𝑺𝑼𝑷𝑷𝑶𝑹𝑻 𝑩𝒀 𝑭𝑶𝑳𝑳𝑶𝑾𝑰𝑵𝑮 𝐎𝐔𝐑 𝑾𝑯𝑨𝑻𝑺𝑨𝑷𝑷 𝑪𝑯𝑨𝑵𝑵𝑬𝑳
