@@ -3,7 +3,7 @@ name: CASEYRHODES-XMD
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/30 * * * *' # Run every 30 minutes as a fallback
+    - cron: '*/30 * * * *' # Fallback every 30 minutes
 
 permissions:
   actions: write
@@ -19,20 +19,17 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3 # Reverted to v3 as in original
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3 # Reverted to v3
         with:
           node-version: 20
-          cache: 'npm' # Cache npm dependencies for faster installs
 
       - name: Install Dependencies
         run: |
           if [ -f package.json ]; then
             npm install
-            # Generate package-lock.json for future runs
-            npm install --package-lock-only || echo "Failed to generate package-lock.json, continuing..."
           else
             echo "Error: package.json not found"
             exit 1
@@ -41,7 +38,7 @@ jobs:
       - name: Run Bot (loop & auto-restart if crash)
         run: |
           echo "Running CASEYRHODES-XMD in auto-restart mode..."
-          timeout 18000 bash -c 'while true; do npm start || { echo "Bot crashed with exit code $?, restarting..."; sleep 1; }; done'; [ $? -eq 124 ] && exit 0 || exit $?
+          timeout 18000 bash -c 'while true; do npm start || { echo "Bot crashed with exit code $?, restarting..."; sleep 2; }; done'; [ $? -eq 124 ] && exit 0 || exit $?
         env:
           NODE_ENV: production
 
