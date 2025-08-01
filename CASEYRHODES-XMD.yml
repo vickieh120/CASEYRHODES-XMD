@@ -2,6 +2,8 @@ name: CASEYRHODES-XMD
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *' # Fallback every 30 minutes
 
 permissions:
   actions: write
@@ -17,20 +19,12 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 # Reverted to v3 as in original
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v3 # Reverted to v3
         with:
           node-version: 20
-
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
 
       - name: Install Dependencies
         run: |
@@ -44,15 +38,26 @@ jobs:
       - name: Run Bot (loop & auto-restart if crash)
         run: |
           echo "Running CASEYRHODES-XMD in auto-restart mode..."
-          timeout 18000 bash -c 'while true; do npm start || { echo "Bot crashed with exit code $?, restarting..."; sleep 2; }; done'
+          timeout 18000 bash -c 'while true; do npm start || { echo "Bot crashed with exit code $?, restarting..."; sleep 2; }; done'; [ $? -eq 124 ] && exit 0 || exit $?
+        env:
+          NODE_ENV: production
 
       - name: Re-Trigger Workflow
         if: success()
         run: |
-          sleep 5
           echo "Re-running workflow..."
           curl -X POST \
             -H "Authorization: Bearer ${{ secrets.CASEYRHODES }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/CASEYRHODES-XMD.yml/dispatches \
-            -d '{"ref":"main"}'
+            -d '{"ref":"main"}' || { echo "Re-trigger failed with exit code $?"; exit 1; }
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "Workflow failed! Check logs for details."
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.CASEYRHODES }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues \
+            -d '{"title":"CASEYRHODES-XMD Workflow Failure","body":"Workflow failed at ${{ github.run_id }}. Check logs for details.","labels":["bug"]}'
