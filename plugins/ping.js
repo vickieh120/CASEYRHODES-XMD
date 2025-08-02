@@ -3,7 +3,8 @@ const { cmd, commands } = require('../command');
 
 cmd({
     pattern: "ping",
-    alias: ["speed","pong"],use: '.ping',
+    alias: ["speed", "pong"],
+    use: '.ping',
     desc: "Check bot's response time.",
     category: "main",
     react: "⚡",
@@ -24,18 +25,25 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
             textEmoji = textEmojis[Math.floor(Math.random() * textEmojis.length)];
         }
 
-        // Send reaction using conn.sendMessage()
+        // Send reaction
         await conn.sendMessage(from, {
-            react: { text: textEmoji, key: mek.key }
+            react: { text: reactionEmoji, key: mek.key }
         });
 
         const end = new Date().getTime();
         const responseTime = (end - start) / 1000;
 
-        const text = `> *𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒-𝐗𝐌𝐃: ${responseTime.toFixed(2)}ms ${reactionEmoji}*`;
+        const text = `> *𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒-𝐗𝐌𝐃: ${responseTime.toFixed(2)}ms ${textEmoji}*`;
+
+        // vCard verification
+        const vcard = `BEGIN:VCARD\nVERSION:3.0\nN: Caseyrhodes verified✅;BOT;;;\nFN:Njabulo-Jb\nitem1.TEL;waid=254700000000:+254 700 000000\nitem1.X-ABLabel:Bot\nEND:VCARD`;
 
         await conn.sendMessage(from, {
             text,
+            contacts: {
+                displayName: "Caseyrhodes verified✅",
+                contacts: [{ vcard }]
+            },
             contextInfo: {
                 mentionedJid: [sender],
                 forwardingScore: 999,
@@ -53,25 +61,3 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
         reply(`An error occurred: ${e.message}`);
     }
 });
-
-// ping2 
-
-cmd({
-    pattern: "ping2",
-    desc: "Check bot's response time.",
-    category: "main",
-    react: "🍂",
-    filename: __filename
-},
-async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
-    try {
-        const startTime = Date.now()
-        const message = await conn.sendMessage(from, { text: '*PINGING...*' })
-        const endTime = Date.now()
-        const ping = endTime - startTime
-        await conn.sendMessage(from, { text: `*🔥 CASEYRHODES-XMD SPEED : ${ping}ms*` }, { quoted: message })
-    } catch (e) {
-        console.log(e)
-        reply(`${e}`)
-    }
-})
