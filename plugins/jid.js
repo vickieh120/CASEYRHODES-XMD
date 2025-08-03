@@ -20,7 +20,7 @@ cmd({
 
         // Send image + caption + audio combined
         await conn.sendMessage(from, { 
-            image: { url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg` },  
+            image: { url: `https://files.catbox.moe/y3j3kl.jpg` },  
             caption: "𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇",
             contextInfo: {
                 mentionedJid: [m.sender],
