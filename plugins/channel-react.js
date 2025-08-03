@@ -18,7 +18,7 @@ cmd({
     use: '.chr <channel-link> <text>',
     filename: __filename
 },
-async (conn, mek, m, { from, reply, isCreator, q }) => {
+async (conn, mek, m, { from, reply, isCreator, q, prefix }) => {
     try {
         // Permission check
         if (!isCreator) {
@@ -27,17 +27,21 @@ async (conn, mek, m, { from, reply, isCreator, q }) => {
 
         // Input validation
         if (!q) {
-            return reply(`ℹ️ Usage:\n${m.prefix}chr https://whatsapp.com/channel/1234567890 hello`);
+            return reply(`ℹ️ Usage:\n${prefix}chr https://whatsapp.com/channel/1234567890 hello`);
         }
 
         const [link, ...textParts] = q.split(' ');
         
         // Channel link validation
-        if (!link.includes("whatsapp.com/channel/")) {
-            return reply("❌ Invalid channel link format\nMust contain 'whatsapp.com/channel/'");
+        const channelMatch = link.match(/whatsapp\.com\/channel\/([^\/]+)\/(\d+)/);
+        if (!channelMatch) {
+            return reply("❌ Invalid channel link format\nMust be: https://whatsapp.com/channel/CHANNEL_ID/MESSAGE_ID");
         }
 
+        const channelId = channelMatch[1];
+        const messageId = channelMatch[2];
         const inputText = textParts.join(' ').toLowerCase();
+        
         if (!inputText.trim()) {
             return reply("❌ Please provide text to convert to emoji reaction");
         }
@@ -49,57 +53,43 @@ async (conn, mek, m, { from, reply, isCreator, q }) => {
             .join('')
             .replace(/\s+/g, '―'); // Replace spaces with long dash
 
-        // Extract channel and message IDs
-        const parts = link.split('/');
-        const channelId = parts[4];
-        const messageId = parts[5]?.split('?')[0];
-        
-        if (!channelId || !messageId) {
-            return reply("❌ Invalid link - missing channel or message ID");
-        }
-
-        // Get channel metadata
-        let channelMeta;
+        // Verify channel exists
+        const newsletterJid = `${channelId}@newsletter`;
         try {
-            channelMeta = await conn.getNewsletterMetadata({ newsletterJid: `${channelId}@newsletter` });
+            await conn.onWhatsApp(newsletterJid);
         } catch (err) {
-            return reply("❌ Failed to fetch channel info. Check the link and try again.");
+            return reply("❌ Channel not found or inaccessible");
         }
 
-        // Send reaction
+        // Send reaction using the correct API method
         try {
-            await conn.sendReactionToNewsletter(
-                `${channelId}@newsletter`,
-                messageId,
-                emoji
-            );
+            await conn.sendMessage(newsletterJid, {
+                react: {
+                    text: emoji,
+                    key: {
+                        id: messageId,
+                        remoteJid: newsletterJid,
+                        fromMe: false
+                    }
+                }
+            });
         } catch (reactError) {
-            console.error("Reaction failed:", reactError);
-            return reply("❌ Failed to send reaction. The message may be too old or you may not have permission.");
+            console.error("Reaction Error:", reactError);
+            return reply("❌ Failed to send reaction. Possible reasons:\n- Message too old\n- Invalid permissions\n- Channel not accessible");
         }
 
-        // Success response with newsletter context
+        // Success response
         const successMsg = `╭━━━〔 *CASEYRHODES-XMD* 〕━━━┈⊷
 ┃✔ *Success!* Reaction sent
 ┃
-┃📢 *Channel:* ${channelMeta.name || 'Unknown'}
+┃📢 *Channel ID:* ${channelId}
 ┃🔤 *Reaction:* ${emoji}
 ┃
 ┃*Message ID:* ${messageId}
 ╰────────────────┈⊷
 > *© Powered by CASEYRHODES-TECH*`;
 
-        return reply(successMsg, {
-            contextInfo: {
-                forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: `${channelId}@newsletter`,
-                    newsletterName: channelMeta.name || 'Unknown Channel',
-                    serverMessageId: parseInt(messageId)
-                }
-            }
-        });
+        return reply(successMsg);
 
     } catch (error) {
         console.error("Channel React Error:", error);
