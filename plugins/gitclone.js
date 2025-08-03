@@ -1,80 +1,72 @@
-const {
-  cmd
-} = require("../command");
+const { cmd } = require("../command");
 const fetch = require("node-fetch");
 
 cmd({
   'pattern': 'gitclone',
   'alias': ["git"],
-  'desc': "Download GitHub repository as a zip file with preview image",
+  'desc': "Download GitHub repository as a zip file.",
   'react': '📦',
   'category': "downloader",
   'filename': __filename
-}, async (message, client, args, { reply }) => {
-  if (!args[0]) {
-    return reply("Please provide a GitHub link!\n\nExample:\n.gitclone https://github.com/caseyweb/CASEYRHODES-XMD");
+}, async (message, client, args, { from, quoted, args: commandArgs, reply }) => {
+  if (!commandArgs[0]) {
+    return reply("Where is the GitHub link?\n\nExample:\n.gitclone https://github.com/caseyweb/CASEYRHODES-XMD");
   }
-  
-  if (!/^(https:\/\/)?github\.com\/.+/.test(args[0])) {
+
+  // Validate GitHub URL
+  if (!/^(https:\/\/)?github\.com\/.+/.test(commandArgs[0])) {
     return reply("⚠️ Invalid GitHub link. Please provide a valid GitHub repository URL.");
   }
 
   try {
     const githubRegex = /github\.com\/([^\/]+)\/([^\/]+)(?:\.git)?/i;
-    const [, username, repoName] = args[0].match(githubRegex) || [];
+    const [, username, repoName] = commandArgs[0].match(githubRegex) || [];
     
     if (!username || !repoName) {
       throw new Error("Invalid GitHub URL format.");
     }
 
     const zipUrl = `https://api.github.com/repos/${username}/${repoName}/zipball`;
-    const repoUrl = `https://github.com/${username}/${repoName}`;
-    const imageUrl = `https://opengraph.githubassets.com/1/${username}/${repoName}`;
-
-    // Verify repository exists
-    const response = await fetch(zipUrl, { method: "HEAD" });
-    if (!response.ok) {
-      throw new Error("Repository not found or access denied.");
+    
+    // Check if repository exists
+    const headResponse = await fetch(zipUrl, { method: "HEAD" });
+    if (!headResponse.ok) {
+      throw new Error(`Repository not found or inaccessible (HTTP ${headResponse.status}).`);
     }
 
-    // Get filename from headers or default to repo name
-    const contentDisposition = response.headers.get("content-disposition");
-    const fileName = contentDisposition ? 
-      contentDisposition.match(/filename=(.*)/)[1] : 
-      `${repoName}-${Date.now()}.zip`;
+    // Get filename from content-disposition header or use default
+    const contentDisposition = headResponse.headers.get("content-disposition");
+    let fileName = contentDisposition 
+      ? contentDisposition.match(/filename=(.*)/)[1] 
+      : `${repoName}.zip`;
 
-    // Send repository preview image
-    await client.sendMessage(message.from, {
-      image: { url: imageUrl },
-      caption: `*📂 GitHub Repository Preview*\n\n` +
-               `*Name:* ${repoName}\n` +
-               `*Author:* ${username}\n` +
-               `*URL:* ${repoUrl}\n\n` +
-               `_Downloading zip file..._`
-    }, { quoted: message });
+    // Remove quotes if present in filename
+    fileName = fileName.replace(/['"]/g, '');
 
-    // Send the zip file
-    await client.sendMessage(message.from, {
-      document: { url: zipUrl },
+    reply(`*📥 Downloading Repository...*\n\n*Repository:* ${username}/${repoName}\n*Filename:* ${fileName}\n\n> *© ᴄᴀsᴇʏʀʜᴏᴅᴇs ᴛᴇᴄʜ*`);
+
+    await client.sendMessage(from, {
+      document: {
+        url: zipUrl
+      },
       fileName: fileName,
       mimetype: 'application/zip',
-      caption: `✅ Successfully downloaded: ${username}/${repoName}`,
       contextInfo: {
         mentionedJid: [message.sender],
         forwardingScore: 999,
         isForwarded: true,
-        externalAdReply: {
-          title: `${username}/${repoName}`,
-          body: "GitHub Repository Download",
-          thumbnailUrl: "https://files.catbox.moe/is9ayz.jpg",
-          sourceUrl: repoUrl,
-          mediaType: 1
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: "120363302677217436@newsletter",
+          newsletterName: "CASEYRHODES-XMD GITHUB CLONE",
+          serverMessageId: 143
         }
       }
-    }, { quoted: message });
+    }, {
+      quoted: message
+    });
 
   } catch (error) {
     console.error("GitClone Error:", error);
-    reply("❌ Failed to process your request. Error: " + error.message);
+    reply(`❌ Failed to download the repository. ${error.message || "Please try again later."}`);
   }
 });
