@@ -3,7 +3,7 @@ const axios = require('axios');
 
 cmd({
     pattern: "openai",
-    alias: ["chatgpt", "gpt3", "open-gpt", "gpt5"],
+    alias: ["chatgpt", "gpt3", "open-gpt","gpt5"],
     desc: "Chat with OpenAI",
     category: "ai",
     react: "🧠",
@@ -49,26 +49,10 @@ async (conn, mek, m, { from, args, q, reply, react }) => {
             await react("❌");
             return reply("AI failed to respond. Please try again later.");
         }
-
-        await reply(`🤖\`\`\`CASEYRHODES-XMD AI Response👻\`\`\`\n\n${data.message}`);
-        await react("✅");
-    } catch (e) {
-        console.error("Error in AI command:", e);
-        await react("❌");
-        reply("An error occurred while communicating with the AI.");
-    }
-});
-
-cmd({
-    pattern: "status",
-    desc: "Show status",
-    category: "general",
-    react: "📱",
-    filename: __filename
-},
-async (conn, mek, m, { from, reply }) => {
-    try {
-        const status = "This is my status message";
+        
+        const status = `🤖 *CASEYRHODES-XMD AI Response:*\n\n${data.message}`;
+        
+        // Send image + caption + audio combined with newsletter info
         await conn.sendMessage(from, { 
             image: { url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg` },  
             caption: status,
@@ -83,12 +67,15 @@ async (conn, mek, m, { from, reply }) => {
                 }
             }
         }, { quoted: mek });
+
+        await react("✅");
     } catch (e) {
-        console.error("Error in status command:", e);
-        reply("An error occurred while displaying status.");
+        console.error("Error in AI command:", e);
+        await react("❌");
+        reply("An error occurred while communicating with the AI.");
     }
 });
-
+         
 cmd({
     pattern: "deepseek",
     alias: ["deep", "seekai"],
