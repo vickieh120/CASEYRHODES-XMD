@@ -1,25 +1,23 @@
-const { cmd, commands } = require('../command');
+const { cmd } = require('../command');
 const os = require("os");
 const { runtime } = require('../lib/functions');
 
 cmd({
     pattern: "alive",
-    alias: ["av", "a", "runtime"],
+    alias: ["av", "runtime", "uptime"],
     desc: "Check uptime and system status",
     category: "main",
     react: "📟",
     filename: __filename
 },
-async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
+async (conn, mek, _, { from, sender, reply }) => {
     try {
-        // Get system info
-        const platform = "Heroku Platform"; // Fixed deployment platform
-        const release = os.release(); // OS version
-        const cpuModel = os.cpus()[0].model; // CPU info
-        const totalMem = (os.totalmem() / 1024 / 1024).toFixed(2); // Total RAM in MB
-        const usedMem = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2); // Used RAM in MB
+        // System information
+        const platform = "Heroku Platform";
+        const totalMem = (os.totalmem() / 1024 / 1024).toFixed(2);
+        const usedMem = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
 
-        // Stylish and detailed system status message
+        // Status message template
         const status = `╭───❰ *𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐗𝐌𝐃* ❱──┈⊷
 ┃ *✨𝖴ᴘᴛɪᴍᴇ* : *${runtime(process.uptime())}*
 ┃ *💾 𝖱ᴀᴍ ᴜsᴀɢᴇ* : *${usedMem}MB / ${totalMem}MB*
@@ -27,48 +25,47 @@ async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sen
 ┃ *👨‍💻𝖮ᴡɴᴇʀ* : *𝖬ʀ ᴄᴀsᴇʏʀʜᴏᴅᴇs*
 ┃ *🧬𝖵ᴇʀsɪᴏɴ* : *𝟣.𝟢.𝟢 𝖡𝖤𝖳𝖠*
 ╰──────────────────────┈⊷
-> ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴄᴀsᴇʏʀʜᴏᴅᴇs ᴛᴇᴄʜ`;
+> ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴄᴀsᴇʏʀʜᴏᴅᴇs`;
 
-        // Verification code object (fixed)
-        const verification = {
-            key: {
-                fromMe: false,
-                participant: `0@s.whatsapp.net`,
-                remoteJid: "status@broadcast"
-            },
-            message: {
-                contactMessage: {
-                    displayName: "Caseyrhodes verified ✅",
-                    vcard: `BEGIN:VCARD\nVERSION:3.0\nN: Caseyrhodes verified ✅;BOT;;;\nFN:Caseyrhodes verified ✅\nitem1.TEL;waid=254700000000:+254 700 000000\nitem1.X-ABLabel:Bot\nEND:VCARD`
-                }
-            }
+        // Verified contact card
+        const verifiedContact = {
+            displayName: "Caseyrhodes Verified✅",
+            vcard: `BEGIN:VCARD
+VERSION:3.0
+FN:Caseyrhodes Verified✅
+ORG:CASEYRHODES TEAM;
+TEL;type=CELL;type=VOICE;waid=254701234567:+254701234567
+END:VCARD`
         };
 
-        // Send image + caption + audio combined
-        await conn.sendMessage(from, { 
-            image: { url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg` },  
-            caption: status,
+        // Send status message with contact card
+        await conn.sendMessage(from, {
+            text: status,
+            contacts: {
+                displayName: "Caseyrhodes Contacts",
+                contacts: [verifiedContact]
+            },
             contextInfo: {
-                mentionedJid: [m.sender],
-                forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐀𝐋𝐈𝐕𝐄🍀',
-                    serverMessageId: 143
+                mentionedJid: [sender],
+                externalAdReply: {
+                    title: 'CASEYRHODES XMD IS ALIVE',
+                    body: '© CASEYRHODES Tᴇᴄʜ ♡',
+                    mediaType: 1,
+                    thumbnailUrl: 'https://i.imgur.com/your-image.jpg', // Replace with actual URL
+                    sourceUrl: 'https://whatsapp.com/channel/0029VbANWX1DuMRi1VNPlB0y'
                 }
             }
         }, { quoted: mek });
 
-        // Attach audio within the same "quoted" message for grouping
+        // Send audio as voice note
         await conn.sendMessage(from, { 
-            audio: { url: 'https://files.catbox.moe/dcxfi1.mp3' },
+            audio: { url: 'https://files.catbox.moe/5df4ei.m4v' },
             mimetype: 'audio/mp4',
             ptt: true 
         }, { quoted: mek });
 
     } catch (e) {
-        console.error("Error in alive command:", e);
-        reply(`🚨 *An error occurred:* ${e.message}`);
+        console.error("Alive Command Error:", e);
+        reply(`🚨 Error: ${e.message}`);
     }
 });
