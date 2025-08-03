@@ -8,31 +8,60 @@ cmd({
     category: "misc",
     filename: __filename
 },
-async (conn, mek, m, { from, reply, text, isCreator }) => {
-    if (!isCreator) return reply('This command is only for the bot owner');
+async (conn, mek, m, { from, reply, text, isCreator, sender }) => {
+    if (!isCreator) return reply('❌ This command is only for the bot owner');
     
+    // Newsletter configuration
+    const newsletterConfig = {
+        contextInfo: {
+            mentionedJid: [sender],
+            forwardingScore: 999,
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363302677217436@newsletter',
+                newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐒𝐄𝐂𝐔𝐑𝐈𝐓𝐘',
+                serverMessageId: 143
+            }
+        }
+    };
+
     try {
         const currentStatus = await getAnti();
         
         if (!text || text.toLowerCase() === 'status') {
-            return reply(`*AntiDelete Status:* ${currentStatus ? '✅ ON' : '❌ OFF'}\n\nUsage:\n• .antidelete on - Enable\n• .antidelete off - Disable`);
+            return await conn.sendMessage(from, {
+                text: `🔒 *AntiDelete Status*\n\nCurrent Status: ${currentStatus ? '✅ ON' : '❌ OFF'}\n\n*Usage:*\n• .antidelete on - Enable protection\n• .antidelete off - Disable protection\n\n⚡ Powered by CASEYRHODES-TECH`,
+                ...newsletterConfig
+            }, { quoted: mek });
         }
         
         const action = text.toLowerCase().trim();
         
         if (action === 'on') {
             await setAnti(true);
-            return reply('✅ Anti-delete has been enabled');
+            return await conn.sendMessage(from, {
+                text: '✅ *Anti-delete enabled*\n\nMessage deletion protection is now active!',
+                ...newsletterConfig
+            }, { quoted: mek });
         } 
         else if (action === 'off') {
             await setAnti(false);
-            return reply('❌ Anti-delete has been disabled');
+            return await conn.sendMessage(from, {
+                text: '❌ *Anti-delete disabled*\n\nMessage deletion protection has been turned off.',
+                ...newsletterConfig
+            }, { quoted: mek });
         } 
         else {
-            return reply('Invalid command. Usage:\n• .antidelete on\n• .antidelete off\n• .antidelete status');
+            return await conn.sendMessage(from, {
+                text: '⚠️ *Invalid command*\n\n*Usage:*\n• .antidelete on - Enable protection\n• .antidelete off - Disable protection\n• .antidelete status - Check current status',
+                ...newsletterConfig
+            }, { quoted: mek });
         }
     } catch (e) {
         console.error("Error in antidelete command:", e);
-        return reply("An error occurred while processing your request.");
+        return await conn.sendMessage(from, {
+            text: '❌ *Error occurred*\n\nFailed to process your request. Please try again later.',
+            ...newsletterConfig
+        }, { quoted: mek });
     }
 });
