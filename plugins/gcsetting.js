@@ -2,23 +2,6 @@ const { sleep } = require('../lib/functions');
 const config = require('../config')
 const { cmd, commands } = require('../command')
 
-// Helper function for newsletter context
-const addNewsletterContext = (messageOptions = {}, quoted) => {
-    return {
-        ...messageOptions,
-        contextInfo: {
-            mentionedJid: [quoted?.sender || messageOptions.mentionedJid || []],
-            forwardingScore: 999,
-            isForwarded: true,
-            forwardedNewsletterMessageInfo: {
-                newsletterJid: '120363302677217436@newsletter',
-                newsletterName: 'CASEYRHODES-XMD',
-                serverMessageId: 999
-            }
-        }
-    };
-};
-
 cmd({
     pattern: "leave",
     alias: ["left", "leftgc", "leavegc"],
@@ -32,27 +15,37 @@ async (conn, mek, m, {
 }) => {
     try {
         if (!isGroup) {
-            return reply("This command can only be used in groups.", null, addNewsletterContext({}, m));
+            return reply("This command can only be used in groups.");
         }
         
         const botOwner = conn.user.id.split(":")[0]; 
         if (senderNumber !== botOwner) {
-            return reply("Only the bot owner can use this command.", null, addNewsletterContext({}, m));
+            return reply("Only the bot owner can use this command.");
         }
 
-        await reply("Leaving group...", null, addNewsletterContext({}, m));
+        reply("Leaving group...");
         await sleep(1500);
-        
-        // Send goodbye message before leaving
-        await conn.sendMessage(from, addNewsletterContext({
-            image: { url: `https://i.ibb.co/m5Bcq64y/caseyrhodes-tech.jpg` },
-            caption: "Goodbye! 👋"
-        }, m), { quoted: mek });
-
         await conn.groupLeave(from);
-
+        
+        // Send status message with image before leaving
+        const status = "Goodbye! 👋";
+        await conn.sendMessage(from, { 
+            image: { url: `https://i.ibb.co/8gHCXCV9/IMG-20250216-WA0009.jpg` },  
+            caption: status,
+            contextInfo: {
+                mentionedJid: [m.sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'CASEYRHODES-XMD💖',
+                    serverMessageId: 143
+                }
+            }
+        }, { quoted: mek });
+        
     } catch (e) {
         console.error(e);
-        reply(`❌ Error: ${e}`, null, addNewsletterContext({}, m));
+        reply(`❌ Error: ${e}`);
     }
 });
