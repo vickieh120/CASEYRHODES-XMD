@@ -90,13 +90,9 @@ cmd({
         ...newsletterConfig
     }, { quoted: mek });
 
-    // Send additional newsletter message
+    // Send newsletter update message (without image)
     await conn.sendMessage(from, { 
-        image: { 
-          url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg`,
-          mimetype: "image/jpeg"
-        },  
-        caption: "🌟 *CASEYRHODES TECH UPDATE* 🌟\n\nStay updated with our latest features!",
+        text: "🌟 *CASEYRHODES TECH UPDATE* 🌟\n\nStay updated with our latest features!",
         ...newsletterConfig
     }, { quoted: mek });
 
