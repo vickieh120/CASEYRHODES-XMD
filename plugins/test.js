@@ -40,9 +40,7 @@ async (conn, mek, m, { from, sender, reply }) => {
                     body: "Multi-Device WhatsApp Bot",
                     thumbnailUrl: "https://files.catbox.moe/y3j3kl.jpg",
                     mediaType: 1,
-                    renderLargerThumbnail: true,
-                    showAdAttribution: true,
-                    sourceUrl: "https://github.com/caseyweb/CASEYRHODES-XMD"
+                    showAdAttribution: true
                 }
             }
         }, { quoted: m });
