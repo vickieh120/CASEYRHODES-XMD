@@ -3,28 +3,14 @@ const fetch = require("node-fetch");
 const { sleep } = require('../lib/functions');
 const { cmd } = require("../command");
 
-// Newsletter configuration
-const newsletterConfig = {
-    contextInfo: {
-        mentionedJid: [m.sender],
-        forwardingScore: 999,
-        isForwarded: true,
-        forwardedNewsletterMessageInfo: {
-            newsletterJid: '120363302677217436@newsletter',
-            newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
-            serverMessageId: 143
-        }
-    }
-};
-
-// Joke command
+// Joke command with newsletter
 cmd({
     pattern: "joke",
     desc: "😂 Get a random joke",
     react: "🤣",
     category: "fun",
     filename: __filename
-}, async (conn, mek, m, { from, reply }) => {
+}, async (conn, mek, m, { from, reply, sender }) => {
     try {
         const response = await axios.get("https://official-joke-api.appspot.com/random_joke");
         const joke = response.data;
@@ -37,7 +23,16 @@ cmd({
 
         await conn.sendMessage(from, {
             text: jokeMessage,
-            ...newsletterConfig
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                    serverMessageId: 143
+                }
+            }
         }, { quoted: mek });
     } catch (error) {
         console.error("❌ Error in joke command:", error);
@@ -45,7 +40,7 @@ cmd({
     }
 });
 
-// Flirt command
+// Flirt command with newsletter
 cmd({
     pattern: "flirt",
     alias: ["masom", "line"],
@@ -53,7 +48,7 @@ cmd({
     react: "💘",
     category: "fun",
     filename: __filename,
-}, async (conn, mek, m, { from, reply }) => {
+}, async (conn, mek, m, { from, reply, sender }) => {
     try {
         const shizokeys = 'shizo';
         const apiUrl = `https://shizoapi.onrender.com/api/texts/flirt?apikey=${shizokeys}`;
@@ -66,9 +61,18 @@ cmd({
 
         await conn.sendMessage(from, {
             text: json.result,
-            mentions: [m.sender],
-            ...newsletterConfig
-        }, { quoted: m });
+            mentions: [sender],
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                    serverMessageId: 143
+                }
+            }
+        }, { quoted: mek });
 
     } catch (error) {
         console.error("Error in flirt command:", error);
@@ -76,7 +80,7 @@ cmd({
     }
 });
 
-// Truth command
+// Truth command with newsletter
 cmd({
     pattern: "truth",
     alias: ["truthquestion"],
@@ -84,7 +88,7 @@ cmd({
     react: "❓",
     category: "fun",
     filename: __filename,
-}, async (conn, mek, m, { from, reply }) => {
+}, async (conn, mek, m, { from, reply, sender }) => {
     try {
         const shizokeys = 'shizo';
         const res = await fetch(`https://shizoapi.onrender.com/api/texts/truth?apikey=${shizokeys}`);
@@ -96,9 +100,18 @@ cmd({
 
         await conn.sendMessage(from, { 
             text: json.result, 
-            mentions: [m.sender],
-            ...newsletterConfig
-        }, { quoted: m });
+            mentions: [sender],
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                    serverMessageId: 143
+                }
+            }
+        }, { quoted: mek });
 
     } catch (error) {
         console.error("Error in truth command:", error);
@@ -106,7 +119,7 @@ cmd({
     }
 });
 
-// Dare command
+// Dare command with newsletter
 cmd({
     pattern: "dare",
     alias: ["truthordare"],
@@ -114,7 +127,7 @@ cmd({
     react: "🎯",
     category: "fun",
     filename: __filename,
-}, async (conn, mek, m, { from, reply }) => {
+}, async (conn, mek, m, { from, reply, sender }) => {
     try {
         const shizokeys = 'shizo';
         const res = await fetch(`https://shizoapi.onrender.com/api/texts/dare?apikey=${shizokeys}`);
@@ -126,9 +139,18 @@ cmd({
 
         await conn.sendMessage(from, { 
             text: json.result, 
-            mentions: [m.sender],
-            ...newsletterConfig
-        }, { quoted: m });
+            mentions: [sender],
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                    serverMessageId: 143
+                }
+            }
+        }, { quoted: mek });
 
     } catch (error) {
         console.error("Error in dare command:", error);
@@ -136,14 +158,14 @@ cmd({
     }
 });
 
-// Fact command
+// Fact command with newsletter
 cmd({
     pattern: "fact",
     desc: "🧠 Get a random fun fact",
     react: "🧠",
     category: "fun",
     filename: __filename
-}, async (conn, mek, m, { from, reply }) => {
+}, async (conn, mek, m, { from, reply, sender }) => {
     try {
         const response = await axios.get("https://uselessfacts.jsph.pl/random.json?language=en");
         const fact = response.data.text;
@@ -154,7 +176,16 @@ cmd({
 
         await conn.sendMessage(from, {
             text: factMessage,
-            ...newsletterConfig
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                    serverMessageId: 143
+                }
+            }
         }, { quoted: mek });
     } catch (error) {
         console.error("❌ Error in fact command:", error);
@@ -162,7 +193,7 @@ cmd({
     }
 });
 
-// Pickup line command
+// Pickup line command with newsletter
 cmd({
     pattern: "pickupline",
     alias: ["pickup"],
@@ -170,7 +201,7 @@ cmd({
     react: "💬",
     category: "fun",
     filename: __filename,
-}, async (conn, mek, m, { from, reply }) => {
+}, async (conn, mek, m, { from, reply, sender }) => {
     try {
         const res = await fetch('https://api.popcat.xyz/pickuplines');
         if (!res.ok) throw new Error(`API request failed with status ${res.status}`);
@@ -180,7 +211,16 @@ cmd({
 
         await conn.sendMessage(from, { 
             text: pickupLine,
-            ...newsletterConfig
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                    serverMessageId: 143
+                }
+            }
         }, { quoted: m });
 
     } catch (error) {
@@ -189,7 +229,7 @@ cmd({
     }
 });
 
-// Character command
+// Character command with newsletter
 cmd({
     pattern: "character",
     alias: ["char"],
@@ -197,7 +237,7 @@ cmd({
     react: "🔥",
     category: "fun",
     filename: __filename,
-}, async (conn, mek, m, { from, isGroup, reply }) => {
+}, async (conn, mek, m, { from, isGroup, reply, sender }) => {
     try {
         if (!isGroup) return reply("This command can only be used in groups.");
 
@@ -217,7 +257,16 @@ cmd({
         await conn.sendMessage(from, {
             text: message,
             mentions: [mentionedUser],
-            ...newsletterConfig
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                    serverMessageId: 143
+                }
+            }
         }, { quoted: m });
 
     } catch (e) {
@@ -226,14 +275,14 @@ cmd({
     }
 });
 
-// Repeat command
+// Repeat command with newsletter
 cmd({
     pattern: "repeat",
     alias: ["rp", "rpm"],
     desc: "Repeat a message a specified number of times.",
     category: "fun",
     filename: __filename
-}, async (conn, mek, m, { from, args, reply }) => {
+}, async (conn, mek, m, { from, args, reply, sender }) => {
     try {
         if (!args[0]) return reply("✳️ Use this command like:\n*Example:* .repeat 10,I love you");
 
@@ -252,8 +301,17 @@ cmd({
 
         await conn.sendMessage(from, {
             text: response,
-            ...newsletterConfig
-        }, { quoted: m });
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                    serverMessageId: 143
+                }
+            }
+        }, { quoted: mek });
 
     } catch (error) {
         console.error("❌ Error in repeat command:", error);
@@ -261,13 +319,13 @@ cmd({
     }
 });
 
-// Send command
+// Send command with newsletter
 cmd({
     pattern: "send",
     desc: "Send a message multiple times, one by one.",
     category: "fun",
     filename: __filename
-}, async (conn, mek, m, { from, args, reply, senderNumber }) => {
+}, async (conn, mek, m, { from, args, reply, sender, senderNumber }) => {
     try {
         const botOwner = conn.user.id.split(":")[0];
         if (senderNumber !== botOwner) return reply("❎ Only the bot owner can use this command.");
@@ -289,8 +347,17 @@ cmd({
         for (let i = 0; i < count; i++) {
             await conn.sendMessage(from, { 
                 text: message,
-                ...newsletterConfig
-            }, { quoted: m });
+                contextInfo: {
+                    mentionedJid: [sender],
+                    forwardingScore: 999,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: '120363302677217436@newsletter',
+                        newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                        serverMessageId: 143
+                    }
+                }
+            }, { quoted: mek });
             await sleep(1000);
         }
 
@@ -302,7 +369,7 @@ cmd({
     }
 });
 
-// Readmore command (fixed)
+// Readmore command with newsletter
 cmd({
     pattern: "readmore",
     alias: ["rm", "rmore", "readm"],
@@ -311,16 +378,25 @@ cmd({
     use: ".readmore <text>",
     react: "📝",
     filename: __filename
-}, async (conn, mek, m, { from, args, reply }) => {
+}, async (conn, mek, m, { from, args, reply, sender }) => {
     try {
         const inputText = args.join(" ") || "No text provided.";
-        const readMore = String.fromCharCode(8206).repeat(4001); // Creates a large hidden gap
+        const readMore = String.fromCharCode(8206).repeat(4001);
         const message = `${inputText}${readMore}`;
 
         await conn.sendMessage(from, { 
             text: message,
-            ...newsletterConfig
-        }, { quoted: m });
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                    serverMessageId: 143
+                }
+            }
+        }, { quoted: mek });
     } catch (error) {
         console.error("❌ Error in readmore command:", error);
         reply("❌ An error occurred: " + error.message);
