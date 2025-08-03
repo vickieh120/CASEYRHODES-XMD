@@ -1,27 +1,40 @@
 const { cmd } = require('../command');
-const { getBuffer, fetchJson } = require('../lib/functions');
 
 cmd({
     pattern: "person",
     react: "👤",
     alias: ["userinfo", "profile"],
-    desc: "Get complete user profile information",
+    desc: "Get complete user profile information with newsletter integration",
     category: "utility",
     use: '.person [@tag or reply]',
     filename: __filename
 },
 async (conn, mek, m, { from, sender, isGroup, reply, quoted, participants }) => {
     try {
-        // 1. DETERMINE TARGET USER
+        // Newsletter configuration
+        const newsletterConfig = {
+            contextInfo: {
+                mentionedJid: [m.sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                    serverMessageId: 143
+                }
+            }
+        };
+
+        // 1. Determine target user
         let userJid = quoted?.sender || 
                      mek.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || 
                      sender;
 
-        // 2. VERIFY USER EXISTS
+        // 2. Verify user exists
         const [user] = await conn.onWhatsApp(userJid).catch(() => []);
         if (!user?.exists) return reply("❌ User not found on WhatsApp");
 
-        // 3. GET PROFILE PICTURE
+        // 3. Get profile picture
         let ppUrl;
         try {
             ppUrl = await conn.profilePictureUrl(userJid, 'image');
@@ -29,22 +42,19 @@ async (conn, mek, m, { from, sender, isGroup, reply, quoted, participants }) => 
             ppUrl = 'https://i.ibb.co/KhYC4FY/1221bc0bdd2354b42b293317ff2adbcf-icon.png';
         }
 
-        // 4. GET NAME (MULTI-SOURCE FALLBACK)
+        // 4. Get name (multi-source fallback)
         let userName = userJid.split('@')[0];
         try {
-            // Try group participant info first
             if (isGroup) {
                 const member = participants.find(p => p.id === userJid);
                 if (member?.notify) userName = member.notify;
             }
             
-            // Try contact DB
             if (userName === userJid.split('@')[0] && conn.contactDB) {
                 const contact = await conn.contactDB.get(userJid).catch(() => null);
                 if (contact?.name) userName = contact.name;
             }
             
-            // Try presence as final fallback
             if (userName === userJid.split('@')[0]) {
                 const presence = await conn.presenceSubscribe(userJid).catch(() => null);
                 if (presence?.pushname) userName = presence.pushname;
@@ -53,10 +63,9 @@ async (conn, mek, m, { from, sender, isGroup, reply, quoted, participants }) => 
             console.log("Name fetch error:", e);
         }
 
-        // 5. GET BIO/ABOUT
+        // 5. Get bio/about
         let bio = {};
         try {
-            // Try personal status
             const statusData = await conn.fetchStatus(userJid).catch(() => null);
             if (statusData?.status) {
                 bio = {
@@ -65,7 +74,6 @@ async (conn, mek, m, { from, sender, isGroup, reply, quoted, participants }) => 
                     updated: statusData.setAt ? new Date(statusData.setAt * 1000) : null
                 };
             } else {
-                // Try business profile
                 const businessProfile = await conn.getBusinessProfile(userJid).catch(() => null);
                 if (businessProfile?.description) {
                     bio = {
@@ -79,20 +87,20 @@ async (conn, mek, m, { from, sender, isGroup, reply, quoted, participants }) => 
             console.log("Bio fetch error:", e);
         }
 
-        // 6. GET GROUP ROLE
+        // 6. Get group role
         let groupRole = "";
         if (isGroup) {
             const participant = participants.find(p => p.id === userJid);
             groupRole = participant?.admin ? "👑 Admin" : "👥 Member";
         }
 
-        // 7. FORMAT OUTPUT
+        // 7. Format output
         const formattedBio = bio.text ? 
             `${bio.text}\n└─ 📌 ${bio.type} Bio${bio.updated ? ` | 🕒 ${bio.updated.toLocaleString()}` : ''}` : 
             "No bio available";
 
         const userInfo = `
-*GC MEMBER INFORMATION 🧊*
+*👤 USER PROFILE INFORMATION*
 
 📛 *Name:* ${userName}
 🔢 *Number:* ${userJid.replace(/@.+/, '')}
@@ -105,13 +113,16 @@ ${formattedBio}
 ✅ Registered: ${user.isUser ? "Yes" : "No"}
 🛡️ Verified: ${user.verifiedName ? "✅ Verified" : "❌ Not verified"}
 ${isGroup ? `👥 *Group Role:* ${groupRole}` : ''}
+
+*📡 Powered by CASEYRHODES*
 `.trim();
 
-        // 8. SEND RESULT
+        // 8. Send result with newsletter integration
         await conn.sendMessage(from, {
             image: { url: ppUrl },
             caption: userInfo,
-            mentions: [userJid]
+            mentions: [userJid],
+            ...newsletterConfig
         }, { quoted: mek });
 
     } catch (e) {
