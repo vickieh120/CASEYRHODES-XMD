@@ -25,13 +25,11 @@ async (conn, mek, m, {
 
         reply("Leaving group...");
         await sleep(1500);
-        await conn.groupLeave(from);
         
-        // Send status message with image before leaving
+        // Send status message before leaving
         const status = "Goodbye! 👋";
         await conn.sendMessage(from, { 
-            image: { url: `https://i.ibb.co/8gHCXCV9/IMG-20250216-WA0009.jpg` },  
-            caption: status,
+            text: status,
             contextInfo: {
                 mentionedJid: [m.sender],
                 forwardingScore: 999,
@@ -43,6 +41,8 @@ async (conn, mek, m, {
                 }
             }
         }, { quoted: mek });
+        
+        await conn.groupLeave(from);
         
     } catch (e) {
         console.error(e);
