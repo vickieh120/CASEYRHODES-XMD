@@ -33,12 +33,7 @@ cmd({
             contextInfo: {
                 mentionedJid: [m.sender],
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 143
-                }
+                isForwarded: true
             }
         }, { quoted: mek });
 
@@ -76,12 +71,7 @@ cmd({
         reply(`✅ Successfully ${action}ed all ${userIds.length} join requests`, {
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 144
-                }
+                isForwarded: true
             }
         });
 
@@ -123,12 +113,7 @@ cmd({
             reply(`✅ Disappearing messages enabled for ${duration}`, {
                 contextInfo: {
                     forwardingScore: 999,
-                    isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: '120363302677217436@newsletter',
-                        newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                        serverMessageId: 145
-                    }
+                    isForwarded: true
                 }
             });
             
@@ -137,12 +122,7 @@ cmd({
             reply("✅ Disappearing messages disabled", {
                 contextInfo: {
                     forwardingScore: 999,
-                    isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: '120363302677217436@newsletter',
-                        newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                        serverMessageId: 146
-                    }
+                    isForwarded: true
                 }
             });
             
@@ -173,12 +153,7 @@ cmd({
         reply("🔇 Group chat is now muted (admins only)", {
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 147
-                }
+                isForwarded: true
             }
         });
 
@@ -205,12 +180,7 @@ cmd({
         reply("🔊 Group chat is now unmuted (all members)", {
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 148
-                }
+                isForwarded: true
             }
         });
 
@@ -238,12 +208,7 @@ cmd({
         reply("🔒 Group settings are now locked (admins only)", {
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 149
-                }
+                isForwarded: true
             }
         });
 
@@ -270,12 +235,7 @@ cmd({
         reply("🔓 Group settings are now unlocked", {
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 150
-                }
+                isForwarded: true
             }
         });
 
@@ -305,12 +265,7 @@ cmd({
         reply("✅ Group name updated successfully", {
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 151
-                }
+                isForwarded: true
             }
         });
 
@@ -339,12 +294,7 @@ cmd({
         reply("✅ Group description updated successfully", {
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 152
-                }
+                isForwarded: true
             }
         });
 
@@ -372,12 +322,7 @@ cmd({
         reply(`🖇️ Group Invite Link:\nhttps://chat.whatsapp.com/${code}`, {
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 153
-                }
+                isForwarded: true
             }
         });
 
@@ -404,12 +349,7 @@ cmd({
         reply("✅ Group invite link has been reset", {
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 154
-                }
+                isForwarded: true
             }
         });
 
@@ -442,12 +382,7 @@ cmd({
             mentions: [userId],
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 155
-                }
+                isForwarded: true
             }
         });
 
@@ -482,12 +417,7 @@ cmd({
             mentions: [userId],
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 156
-                }
+                isForwarded: true
             }
         });
 
@@ -522,12 +452,7 @@ cmd({
             mentions: [userId],
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 157
-                }
+                isForwarded: true
             }
         });
 
@@ -563,12 +488,7 @@ cmd({
             mentions,
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 158
-                }
+                isForwarded: true
             }
         }, { quoted: mek });
 
@@ -600,12 +520,7 @@ cmd({
             ephemeralExpiration: 604800, // 7 days
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 159
-                }
+                isForwarded: true
             }
         }, { quoted: mek });
 
@@ -652,12 +567,7 @@ ${config.FOOTER || "Powered by CASEYRHODES-TECH"}
             mentions: [metadata.owner],
             contextInfo: {
                 forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
-                    serverMessageId: 160
-                }
+                isForwarded: true
             }
         }, { quoted: mek });
 
