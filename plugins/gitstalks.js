@@ -34,10 +34,8 @@ cmd({
                    `*Code:* ${code}\n\n` +
                    `_Powered by CASEYRHODES-XMD_`;
     
-    // Send the status message with an image
     await client.sendMessage(from, { 
-      image: { url: `https://i.ibb.co/8gHCXCV/IMG-20250216-WA0009.jpg` },  
-      caption: status,
+      text: status,
       contextInfo: {
         mentionedJid: [m.sender],
         forwardingScore: 999,
@@ -89,10 +87,8 @@ cmd({
                    `*Code:* ${code}\n\n` +
                    `_Powered by CASEYRHODES-XMD_`;
     
-    // Send the status message with an image
     await client.sendMessage(from, { 
-      image: { url: `https://i.ibb.co/8gHCXCV/IMG-20250216-WA0009.jpg` },  
-      caption: status,
+      text: status,
       contextInfo: {
         mentionedJid: [m.sender],
         forwardingScore: 999,
