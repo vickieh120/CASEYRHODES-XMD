@@ -2,8 +2,22 @@ const { sleep } = require('../lib/functions');
 const config = require('../config')
 const { cmd, commands } = require('../command')
 
-
-// JawadTechX
+// Helper function for newsletter context
+const addNewsletterContext = (messageOptions = {}, quoted) => {
+    return {
+        ...messageOptions,
+        contextInfo: {
+            mentionedJid: [quoted?.sender || messageOptions.mentionedJid || []],
+            forwardingScore: 999,
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363302677217436@newsletter',
+                newsletterName: 'CASEYRHODES-XMD',
+                serverMessageId: 999
+            }
+        }
+    };
+};
 
 cmd({
     pattern: "leave",
@@ -17,24 +31,28 @@ async (conn, mek, m, {
     from, quoted, body, isCmd, command, args, q, isGroup, senderNumber, reply
 }) => {
     try {
-
         if (!isGroup) {
-            return reply("This command can only be used in groups.");
+            return reply("This command can only be used in groups.", null, addNewsletterContext({}, m));
         }
         
-
         const botOwner = conn.user.id.split(":")[0]; 
         if (senderNumber !== botOwner) {
-            return reply("Only the bot owner can use this command.");
+            return reply("Only the bot owner can use this command.", null, addNewsletterContext({}, m));
         }
 
-        reply("Leaving group...");
+        await reply("Leaving group...", null, addNewsletterContext({}, m));
         await sleep(1500);
+        
+        // Send goodbye message before leaving
+        await conn.sendMessage(from, addNewsletterContext({
+            image: { url: `https://i.ibb.co/m5Bcq64y/caseyrhodes-tech.jpg` },
+            caption: "Goodbye! 👋"
+        }, m), { quoted: mek });
+
         await conn.groupLeave(from);
-        reply("Goodbye! 👋");
+
     } catch (e) {
         console.error(e);
-        reply(`❌ Error: ${e}`);
+        reply(`❌ Error: ${e}`, null, addNewsletterContext({}, m));
     }
 });
-
