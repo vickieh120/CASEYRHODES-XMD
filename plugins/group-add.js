@@ -38,7 +38,26 @@ async (conn, mek, m, {
 
     try {
         await conn.groupParticipantsUpdate(from, [jid], "add");
-        reply(`✅ Successfully added @${number}`, { mentions: [jid] });
+        
+        // Success message with mention
+        await reply(`✅ Successfully added @${number}`, { mentions: [jid] });
+        
+        // Send image + caption + newsletter info
+        await conn.sendMessage(from, { 
+            image: { url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg` },  
+            caption: `User @${number} has been added to the group by the bot owner.`,
+            contextInfo: {
+                mentionedJid: [jid],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                    serverMessageId: 143
+                }
+            }
+        }, { quoted: mek });
+       
     } catch (error) {
         console.error("Add command error:", error);
         reply("❌ Failed to add the member.");
