@@ -29,7 +29,17 @@ cmd({
 
         await conn.sendMessage(from, {
             text: message,
-            mentions
+            mentions,
+            contextInfo: {
+                mentionedJid: [m.sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 143
+                }
+            }
         }, { quoted: mek });
 
     } catch (error) {
@@ -63,7 +73,17 @@ cmd({
         const userIds = pendingRequests.map(user => user.jid);
         await conn.groupRequestParticipantsUpdate(from, userIds, action);
 
-        reply(`✅ Successfully ${action}ed all ${userIds.length} join requests`);
+        reply(`✅ Successfully ${action}ed all ${userIds.length} join requests`, {
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 144
+                }
+            }
+        });
 
     } catch (error) {
         console.error("AllReq Error:", error);
@@ -100,11 +120,31 @@ cmd({
             }
 
             await conn.groupSettingUpdate(from, 'disappearing_messages', seconds);
-            reply(`✅ Disappearing messages enabled for ${duration}`);
+            reply(`✅ Disappearing messages enabled for ${duration}`, {
+                contextInfo: {
+                    forwardingScore: 999,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: '120363302677217436@newsletter',
+                        newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                        serverMessageId: 145
+                    }
+                }
+            });
             
         } else if (action === 'off') {
             await conn.groupSettingUpdate(from, 'disappearing_messages', false);
-            reply("✅ Disappearing messages disabled");
+            reply("✅ Disappearing messages disabled", {
+                contextInfo: {
+                    forwardingScore: 999,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: '120363302677217436@newsletter',
+                        newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                        serverMessageId: 146
+                    }
+                }
+            });
             
         } else {
             reply("ℹ️ Usage: .disappear <on/off> [24h/7d/90d]");
@@ -130,7 +170,17 @@ cmd({
         if (!isBotAdmins) return reply("❌ Bot needs admin privileges");
 
         await conn.groupSettingUpdate(from, 'announcement');
-        reply("🔇 Group chat is now muted (admins only)");
+        reply("🔇 Group chat is now muted (admins only)", {
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 147
+                }
+            }
+        });
 
     } catch (error) {
         console.error("Mute Error:", error);
@@ -152,7 +202,17 @@ cmd({
         if (!isBotAdmins) return reply("❌ Bot needs admin privileges");
 
         await conn.groupSettingUpdate(from, "not_announcement");
-        reply("🔊 Group chat is now unmuted (all members)");
+        reply("🔊 Group chat is now unmuted (all members)", {
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 148
+                }
+            }
+        });
 
     } catch (error) {
         console.error("Unmute Error:", error);
@@ -175,7 +235,17 @@ cmd({
         if (!isBotAdmins) return reply("❌ Bot needs admin privileges");
 
         await conn.groupSettingUpdate(from, 'locked');
-        reply("🔒 Group settings are now locked (admins only)");
+        reply("🔒 Group settings are now locked (admins only)", {
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 149
+                }
+            }
+        });
 
     } catch (error) {
         console.error("LockGS Error:", error);
@@ -197,7 +267,17 @@ cmd({
         if (!isBotAdmins) return reply("❌ Bot needs admin privileges");
 
         await conn.groupSettingUpdate(from, "unlocked");
-        reply("🔓 Group settings are now unlocked");
+        reply("🔓 Group settings are now unlocked", {
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 150
+                }
+            }
+        });
 
     } catch (error) {
         console.error("UnlockGS Error:", error);
@@ -222,7 +302,17 @@ cmd({
         if (!q) return reply("ℹ️ Please provide the new group name");
 
         await conn.groupUpdateSubject(from, q);
-        reply("✅ Group name updated successfully");
+        reply("✅ Group name updated successfully", {
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 151
+                }
+            }
+        });
 
     } catch (error) {
         console.error("UpdateGName Error:", error);
@@ -246,7 +336,17 @@ cmd({
         if (!q) return reply("ℹ️ Please provide the new group description");
 
         await conn.groupUpdateDescription(from, q);
-        reply("✅ Group description updated successfully");
+        reply("✅ Group description updated successfully", {
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 152
+                }
+            }
+        });
 
     } catch (error) {
         console.error("UpdateGDesc Error:", error);
@@ -269,7 +369,17 @@ cmd({
         if (!isBotAdmins) return reply("❌ Bot needs admin privileges");
 
         const code = await conn.groupInviteCode(from);
-        reply(`🖇️ Group Invite Link:\nhttps://chat.whatsapp.com/${code}`);
+        reply(`🖇️ Group Invite Link:\nhttps://chat.whatsapp.com/${code}`, {
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 153
+                }
+            }
+        });
 
     } catch (error) {
         console.error("Invite Error:", error);
@@ -291,7 +401,17 @@ cmd({
         if (!isBotAdmins) return reply("❌ Bot needs admin privileges");
 
         await conn.groupRevokeInvite(from);
-        reply("✅ Group invite link has been reset");
+        reply("✅ Group invite link has been reset", {
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 154
+                }
+            }
+        });
 
     } catch (error) {
         console.error("Revoke Error:", error);
@@ -318,7 +438,18 @@ cmd({
         if (!userId) return reply("ℹ️ Please mention or quote the user to kick");
 
         await conn.groupParticipantsUpdate(from, [userId], "remove");
-        reply(`✅ User @${userId.split('@')[0]} has been removed`, { mentions: [userId] });
+        reply(`✅ User @${userId.split('@')[0]} has been removed`, { 
+            mentions: [userId],
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 155
+                }
+            }
+        });
 
     } catch (error) {
         console.error("Kick Error:", error);
@@ -347,7 +478,18 @@ cmd({
         if (admins.includes(userId)) return reply("ℹ️ User is already an admin");
 
         await conn.groupParticipantsUpdate(from, [userId], "promote");
-        reply(`✅ User @${userId.split('@')[0]} is now an admin`, { mentions: [userId] });
+        reply(`✅ User @${userId.split('@')[0]} is now an admin`, { 
+            mentions: [userId],
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 156
+                }
+            }
+        });
 
     } catch (error) {
         console.error("Promote Error:", error);
@@ -376,7 +518,18 @@ cmd({
         if (!admins.includes(userId)) return reply("ℹ️ User is not an admin");
 
         await conn.groupParticipantsUpdate(from, [userId], "demote");
-        reply(`✅ User @${userId.split('@')[0]} is no longer an admin`, { mentions: [userId] });
+        reply(`✅ User @${userId.split('@')[0]} is no longer an admin`, { 
+            mentions: [userId],
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 157
+                }
+            }
+        });
 
     } catch (error) {
         console.error("Demote Error:", error);
@@ -407,7 +560,16 @@ cmd({
 
         await conn.sendMessage(from, {
             text: message,
-            mentions
+            mentions,
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 158
+                }
+            }
         }, { quoted: mek });
 
     } catch (error) {
@@ -435,7 +597,16 @@ cmd({
         await conn.sendMessage(from, {
             text: q,
             mentions,
-            ephemeralExpiration: 604800 // 7 days
+            ephemeralExpiration: 604800, // 7 days
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 159
+                }
+            }
         }, { quoted: mek });
 
     } catch (error) {
@@ -478,7 +649,16 @@ ${config.FOOTER || "Powered by CASEYRHODES-TECH"}
         await conn.sendMessage(from, {
             image: { url: ppUrl },
             caption: infoText,
-            mentions: [metadata.owner]
+            mentions: [metadata.owner],
+            contextInfo: {
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'ᴄᴀsᴇʏʀʜᴏᴅᴇs xᴛᴇᴄʜ 🌟',
+                    serverMessageId: 160
+                }
+            }
         }, { quoted: mek });
 
     } catch (error) {
