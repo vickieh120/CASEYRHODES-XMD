@@ -9,7 +9,7 @@ cmd({
     react: "🎙️",
     filename: __filename
 },
-async (conn, mek, m, { from, quoted, sender, reply }) => {
+async (conn, mek, m, { from, sender, reply }) => {
     try {
         const songUrls = [
             "https://files.catbox.moe/dcxfi1.mp3",
@@ -22,21 +22,6 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
 
         const randomUrl = songUrls[Math.floor(Math.random() * songUrls.length)];
 
-        // Fake verified contact as quoted message
-        const fakeContact = {
-            key: {
-                fromMe: false,
-                participant: "0@s.whatsapp.net",
-                remoteJid: "status@broadcast"
-            },
-            message: {
-                contactMessage: {
-                    displayName: "CASEYRHODES-XMD VERIFIED ✅",
-                    vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:CASEYRHODES-XMD\nORG:CASEYRHODES;\nTEL;type=CELL;type=VOICE;waid=254700000000:+254700000000\nEND:VCARD"
-                }
-            }
-        };
-
         await conn.sendMessage(from, {
             audio: { url: randomUrl },
             mimetype: 'audio/mp4',
@@ -45,22 +30,15 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
                 mentionedJid: [sender],
                 forwardingScore: 999,
                 isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: "CASEYRHODES TECH 👻",
-                    serverMessageId: 143
-                },
                 externalAdReply: {
-                    title: "CASEYRHODES-XMD",
-                    body: "Multi-Device WhatsApp Bot",
+                    title: "Audio Bot",
+                    body: "Random Audio Message",
                     thumbnailUrl: "https://files.catbox.moe/y3j3kl.jpg",
                     mediaType: 1,
-                    renderLargerThumbnail: true,
-                    showAdAttribution: true,
-                    sourceUrl: "https://github.com/caseyweb/CASEYRHODES-XMD"
+                    renderLargerThumbnail: true
                 }
             }
-        }, { quoted: fakeContact });
+        }, { quoted: m });
 
     } catch (e) {
         console.error("Error in test command:", e);
