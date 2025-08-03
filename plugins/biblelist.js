@@ -1,11 +1,9 @@
-
-
 const { cmd } = require("../command");
 
 // Command: biblelist
 cmd({
     pattern: "biblelist",
-    alias: ["biblebooks", "listbible", "blist"], // Ajout des alias
+    alias: ["biblebooks", "listbible", "blist"],
     desc: "Get the complete list of books in the Bible.",
     category: "fun",
     react: "📜",
@@ -83,13 +81,11 @@ cmd({
 25. 3 John
 26. Jude
 27. Revelation
-
-
-❤️BY  CASEYRHODES XMD❤️
+> ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴄᴀsᴇʏʀʜᴏᴅᴇs ᴛᴇᴄʜ 🌟
 `;
 
         // Remplacer ce lien par l'URL de l'image que tu m'enverras
-        const imageUrl = "https://files.catbox.moe/kx30st.jpeg"; // Remplace "TON_LIEN_IMAGE_ICI" par ton lien d'image
+        const imageUrl = "https://files.catbox.moe/kx30st.jpeg";
 
         // Vérifier si le message de la commande est correctement reçu
         if (!m.chat) {
@@ -101,7 +97,17 @@ cmd({
             image: { url: imageUrl },
             caption: `📖 *BIBLE LIST BY CASEYRHODES MD*:\n\n` +
                      `Here is the complete list of books in the Bible:\n\n` +
-                     bibleList.trim() // Ajout du texte des livres de la Bible
+                     bibleList.trim(),
+            contextInfo: {
+                mentionedJid: [m.sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐀𝐋𝐈𝐕𝐄🍀',
+                    serverMessageId: 143
+                }
+            }
         }, { quoted: mek });
     } catch (error) {
         console.error(error);
