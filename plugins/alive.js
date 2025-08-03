@@ -29,6 +29,21 @@ async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sen
 ╰──────────────────────┈⊷
 > ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴄᴀsᴇʏʀʜᴏᴅᴇs ᴛᴇᴄʜ`;
 
+        // Verification code object (fixed)
+        const verification = {
+            key: {
+                fromMe: false,
+                participant: `0@s.whatsapp.net`,
+                remoteJid: "status@broadcast"
+            },
+            message: {
+                contactMessage: {
+                    displayName: "Caseyrhodes verified ✅",
+                    vcard: `BEGIN:VCARD\nVERSION:3.0\nN: Caseyrhodes verified ✅;BOT;;;\nFN:Caseyrhodes verified ✅\nitem1.TEL;waid=254700000000:+254 700 000000\nitem1.X-ABLabel:Bot\nEND:VCARD`
+                }
+            }
+        };
+
         // Send image + caption + audio combined
         await conn.sendMessage(from, { 
             image: { url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg` },  
