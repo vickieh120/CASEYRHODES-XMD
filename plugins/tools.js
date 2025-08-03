@@ -1,36 +1,51 @@
-// CASEYRHODES SHIT👻
-
 const axios = require("axios");
 const fetch = require("node-fetch");
 const { sleep } = require('../lib/functions');
-const { cmd, commands } = require("../command");
+const { cmd } = require("../command");
 
-cmd({
-  pattern: "joke",
-  desc: "😂 Get a random joke",
-  react: "🤣",
-  category: "fun",
-  filename: __filename
-}, async (conn, m, store, { reply }) => {
-  try {
-    const response = await axios.get("https://official-joke-api.appspot.com/random_joke");
-    const joke = response.data;
-
-    if (!joke || !joke.setup || !joke.punchline) {
-      return reply("❌ Failed to fetch a joke. Please try again.");
+// Newsletter configuration
+const newsletterConfig = {
+    contextInfo: {
+        mentionedJid: [m.sender],
+        forwardingScore: 999,
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+            newsletterJid: '120363302677217436@newsletter',
+            newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+            serverMessageId: 143
+        }
     }
+};
 
-    const jokeMessage = `🤣 *Here's a random joke for you!* 🤣\n\n*${joke.setup}*\n\n${joke.punchline} 😆\n\n> *© ᴄᴏᴏᴋᴇᴅ ʙʏ ᴍʀ ᴄᴀsᴇʏʀʜᴏᴅᴇs*`;
+// Joke command
+cmd({
+    pattern: "joke",
+    desc: "😂 Get a random joke",
+    react: "🤣",
+    category: "fun",
+    filename: __filename
+}, async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get("https://official-joke-api.appspot.com/random_joke");
+        const joke = response.data;
 
-    return reply(jokeMessage);
-  } catch (error) {
-    console.error("❌ Error in joke command:", error);
-    return reply("⚠️ An error occurred while fetching the joke. Please try again.");
-  }
+        if (!joke || !joke.setup || !joke.punchline) {
+            return reply("❌ Failed to fetch a joke. Please try again.");
+        }
+
+        const jokeMessage = `🤣 *Here's a random joke for you!* 🤣\n\n*${joke.setup}*\n\n${joke.punchline} 😆\n\n> *© ᴄᴏᴏᴋᴇᴅ ʙʏ ᴍʀ ᴄᴀsᴇʏʀʜᴏᴅᴇs*`;
+
+        await conn.sendMessage(from, {
+            text: jokeMessage,
+            ...newsletterConfig
+        }, { quoted: mek });
+    } catch (error) {
+        console.error("❌ Error in joke command:", error);
+        reply("⚠️ An error occurred while fetching the joke. Please try again.");
+    }
 });
 
-// flirt
-
+// Flirt command
 cmd({
     pattern: "flirt",
     alias: ["masom", "line"],
@@ -38,29 +53,21 @@ cmd({
     react: "💘",
     category: "fun",
     filename: __filename,
-}, 
-async (conn, mek, m, { from, reply }) => {
+}, async (conn, mek, m, { from, reply }) => {
     try {
-        // Define API key and URL
         const shizokeys = 'shizo';
         const apiUrl = `https://shizoapi.onrender.com/api/texts/flirt?apikey=${shizokeys}`;
 
-        // Fetch data from the API
         const res = await fetch(apiUrl);
-        if (!res.ok) {
-            throw new Error(`API error: ${await res.text()}`);
-        }
+        if (!res.ok) throw new Error(`API error: ${await res.text()}`);
         
         const json = await res.json();
-        if (!json.result) {
-            throw new Error("Invalid response from API.");
-        }
+        if (!json.result) throw new Error("Invalid response from API.");
 
-        // Extract and send the flirt message
-        const flirtMessage = `${json.result}`;
         await conn.sendMessage(from, {
-            text: flirtMessage,
+            text: json.result,
             mentions: [m.sender],
+            ...newsletterConfig
         }, { quoted: m });
 
     } catch (error) {
@@ -69,8 +76,7 @@ async (conn, mek, m, { from, reply }) => {
     }
 });
 
-//truth
-
+// Truth command
 cmd({
     pattern: "truth",
     alias: ["truthquestion"],
@@ -78,28 +84,20 @@ cmd({
     react: "❓",
     category: "fun",
     filename: __filename,
-}, 
-async (conn, mek, m, { from, reply }) => {
+}, async (conn, mek, m, { from, reply }) => {
     try {
         const shizokeys = 'shizo';
         const res = await fetch(`https://shizoapi.onrender.com/api/texts/truth?apikey=${shizokeys}`);
         
-        if (!res.ok) {
-            console.error(`API request failed with status ${res.status}`);
-            throw new Error(`API request failed with status ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`API request failed with status ${res.status}`);
 
         const json = await res.json();
+        if (!json.result) throw new Error("Invalid API response: No 'result' field found.");
 
-        if (!json.result) {
-            console.error("Invalid API response: No 'result' field found.");
-            throw new Error("Invalid API response: No 'result' field found.");
-        }
-
-        const truthText = `${json.result}`;
         await conn.sendMessage(from, { 
-            text: truthText, 
-            mentions: [m.sender] 
+            text: json.result, 
+            mentions: [m.sender],
+            ...newsletterConfig
         }, { quoted: m });
 
     } catch (error) {
@@ -108,8 +106,7 @@ async (conn, mek, m, { from, reply }) => {
     }
 });
 
-// dare
-
+// Dare command
 cmd({
     pattern: "dare",
     alias: ["truthordare"],
@@ -117,34 +114,20 @@ cmd({
     react: "🎯",
     category: "fun",
     filename: __filename,
-}, 
-async (conn, mek, m, { from, reply }) => {
+}, async (conn, mek, m, { from, reply }) => {
     try {
-        // API Key
         const shizokeys = 'shizo';
-
-        // Fetch dare text from the API
         const res = await fetch(`https://shizoapi.onrender.com/api/texts/dare?apikey=${shizokeys}`);
         
-        if (!res.ok) {
-            console.error(`API request failed with status ${res.status}`);
-            throw new Error(`API request failed with status ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`API request failed with status ${res.status}`);
 
         const json = await res.json();
+        if (!json.result) throw new Error("Invalid API response: No 'result' field found.");
 
-        if (!json.result) {
-            console.error("Invalid API response: No 'result' field found.");
-            throw new Error("Invalid API response: No 'result' field found.");
-        }
-
-        // Format the dare message
-        const dareText = `${json.result}`;
-
-        // Send the dare to the chat
         await conn.sendMessage(from, { 
-            text: dareText, 
-            mentions: [m.sender] 
+            text: json.result, 
+            mentions: [m.sender],
+            ...newsletterConfig
         }, { quoted: m });
 
     } catch (error) {
@@ -153,30 +136,33 @@ async (conn, mek, m, { from, reply }) => {
     }
 });
 
+// Fact command
 cmd({
-  pattern: "fact",
-  desc: "🧠 Get a random fun fact",
-  react: "🧠",
-  category: "fun",
-  filename: __filename
-}, async (conn, m, store, { reply }) => {
-  try {
-    const response = await axios.get("https://uselessfacts.jsph.pl/random.json?language=en");
-    const fact = response.data.text;
+    pattern: "fact",
+    desc: "🧠 Get a random fun fact",
+    react: "🧠",
+    category: "fun",
+    filename: __filename
+}, async (conn, mek, m, { from, reply }) => {
+    try {
+        const response = await axios.get("https://uselessfacts.jsph.pl/random.json?language=en");
+        const fact = response.data.text;
 
-    if (!fact) {
-      return reply("❌ Failed to fetch a fun fact. Please try again.");
+        if (!fact) return reply("❌ Failed to fetch a fun fact. Please try again.");
+
+        const factMessage = `🧠 *Random Fun Fact* 🧠\n\n${fact}\n\nIsn't that interesting? 😄\n\n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍʀ ғʀᴀɴᴋ*`;
+
+        await conn.sendMessage(from, {
+            text: factMessage,
+            ...newsletterConfig
+        }, { quoted: mek });
+    } catch (error) {
+        console.error("❌ Error in fact command:", error);
+        reply("⚠️ An error occurred while fetching a fun fact. Please try again later.");
     }
-
-    const factMessage = `🧠 *Random Fun Fact* 🧠\n\n${fact}\n\nIsn't that interesting? 😄\n\n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍʀ ғʀᴀɴᴋ*`;
-
-    return reply(factMessage);
-  } catch (error) {
-    console.error("❌ Error in fact command:", error);
-    return reply("⚠️ An error occurred while fetching a fun fact. Please try again later.");
-  }
 });
 
+// Pickup line command
 cmd({
     pattern: "pickupline",
     alias: ["pickup"],
@@ -184,26 +170,18 @@ cmd({
     react: "💬",
     category: "fun",
     filename: __filename,
-}, 
-async (conn, mek, m, { from, reply }) => {
+}, async (conn, mek, m, { from, reply }) => {
     try {
-        // Fetch pickup line from the API
         const res = await fetch('https://api.popcat.xyz/pickuplines');
-        
-        if (!res.ok) {
-            throw new Error(`API request failed with status ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`API request failed with status ${res.status}`);
 
         const json = await res.json();
-
-        // Log the API response (for debugging purposes)
-        console.log('JSON response:', json);
-
-        // Format the pickup line message
         const pickupLine = `*Here's a pickup line for you:*\n\n"${json.pickupline}"\n\n> *© ᴅʀᴏᴘᴘᴇᴅ ʙʏ ᴍʀ ғʀᴀɴᴋ*`;
 
-        // Send the pickup line to the chat
-        await conn.sendMessage(from, { text: pickupLine }, { quoted: m });
+        await conn.sendMessage(from, { 
+            text: pickupLine,
+            ...newsletterConfig
+        }, { quoted: m });
 
     } catch (error) {
         console.error("Error in pickupline command:", error);
@@ -211,8 +189,7 @@ async (conn, mek, m, { from, reply }) => {
     }
 });
 
-// char
-
+// Character command
 cmd({
     pattern: "character",
     alias: ["char"],
@@ -220,52 +197,27 @@ cmd({
     react: "🔥",
     category: "fun",
     filename: __filename,
-}, 
-async (conn, mek, m, { from, isGroup, text, reply }) => {
+}, async (conn, mek, m, { from, isGroup, reply }) => {
     try {
-        // Ensure the command is used in a group
-        if (!isGroup) {
-            return reply("This command can only be used in groups.");
-        }
+        if (!isGroup) return reply("This command can only be used in groups.");
 
-        // Extract the mentioned user
         const mentionedUser = m.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
-        if (!mentionedUser) {
-            return reply("Please mention a user whose character you want to check.");
-        }
+        if (!mentionedUser) return reply("Please mention a user whose character you want to check.");
 
-        // Define character traits
         const userChar = [
-            "Sigma",
-            "Generous",
-            "Grumpy",
-            "Overconfident",
-            "Obedient",
-            "Good",
-            "Simp",
-            "Kind",
-            "Patient",
-            "Pervert",
-            "Cool",
-            "Helpful",
-            "Brilliant",
-            "Sexy",
-            "Hot",
-            "Gorgeous",
-            "Cute",
+            "Sigma", "Generous", "Grumpy", "Overconfident", "Obedient",
+            "Good", "Simp", "Kind", "Patient", "Pervert",
+            "Cool", "Helpful", "Brilliant", "Sexy", "Hot",
+            "Gorgeous", "Cute"
         ];
 
-        // Randomly select a character trait
-        const userCharacterSelection =
-            userChar[Math.floor(Math.random() * userChar.length)];
-
-        // Message to send
+        const userCharacterSelection = userChar[Math.floor(Math.random() * userChar.length)];
         const message = `Character of @${mentionedUser.split("@")[0]} is *${userCharacterSelection}* 🔥⚡`;
 
-        // Send the message with mentions
         await conn.sendMessage(from, {
             text: message,
             mentions: [mentionedUser],
+            ...newsletterConfig
         }, { quoted: m });
 
     } catch (e) {
@@ -274,99 +226,103 @@ async (conn, mek, m, { from, isGroup, text, reply }) => {
     }
 });
 
+// Repeat command
 cmd({
-  pattern: "repeat",
-  alias: ["rp", "rpm"],
-  desc: "Repeat a message a specified number of times.",
-  category: "fun",
-  filename: __filename
-}, async (conn, m, store, { args, reply }) => {
-  try {
-    if (!args[0]) {
-      return reply("✳️ Use this command like:\n*Example:* .repeat 10,I love you");
+    pattern: "repeat",
+    alias: ["rp", "rpm"],
+    desc: "Repeat a message a specified number of times.",
+    category: "fun",
+    filename: __filename
+}, async (conn, mek, m, { from, args, reply }) => {
+    try {
+        if (!args[0]) return reply("✳️ Use this command like:\n*Example:* .repeat 10,I love you");
+
+        const [countStr, ...messageParts] = args.join(" ").split(",");
+        const count = parseInt(countStr.trim());
+        const message = messageParts.join(",").trim();
+
+        if (isNaN(count) || count <= 0 || count > 300) {
+            return reply("❎ Please specify a valid number between 1 and 300.");
+        }
+
+        if (!message) return reply("❎ Please provide a message to repeat.");
+
+        const repeatedMessage = Array(count).fill(message).join("\n");
+        const response = `🔄 Repeated ${count} times:\n\n${repeatedMessage}\n\n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴍʀ ᴄᴀsᴇʏʀʜᴏᴅᴇs*`;
+
+        await conn.sendMessage(from, {
+            text: response,
+            ...newsletterConfig
+        }, { quoted: m });
+
+    } catch (error) {
+        console.error("❌ Error in repeat command:", error);
+        reply("❎ An error occurred while processing your request.");
     }
-
-    const [countStr, ...messageParts] = args.join(" ").split(",");
-    const count = parseInt(countStr.trim());
-    const message = messageParts.join(",").trim();
-
-    if (isNaN(count) || count <= 0 || count > 300) {
-      return reply("❎ Please specify a valid number between 1 and 300.");
-    }
-
-    if (!message) {
-      return reply("❎ Please provide a message to repeat.");
-    }
-
-    const repeatedMessage = Array(count).fill(message).join("\n");
-
-    reply(`🔄 Repeated ${count} times:\n\n${repeatedMessage}`);
-  } catch (error) {
-    console.error("❌ Error in repeat command:", error);
-    reply("❎ An error occurred while processing your request.");
-  }
 });
 
+// Send command
 cmd({
-  pattern: "send",
-  desc: "Send a message multiple times, one by one.",
-  category: "fun",
-  filename: __filename
-}, async (conn, m, store, { args, reply, senderNumber }) => {
-  try {
-    const botOwner = conn.user.id.split(":")[0]; // Get bot owner's number
+    pattern: "send",
+    desc: "Send a message multiple times, one by one.",
+    category: "fun",
+    filename: __filename
+}, async (conn, mek, m, { from, args, reply, senderNumber }) => {
+    try {
+        const botOwner = conn.user.id.split(":")[0];
+        if (senderNumber !== botOwner) return reply("❎ Only the bot owner can use this command.");
 
-    if (senderNumber !== botOwner) {
-      return reply("❎ Only the bot owner can use this command.");
+        if (!args[0]) return reply("✳️ Use this command like:\n *Example:* .send 10,I love you");
+
+        const [countStr, ...messageParts] = args.join(" ").split(",");
+        const count = parseInt(countStr.trim());
+        const message = messageParts.join(",").trim();
+
+        if (isNaN(count) || count <= 0 || count > 100) {
+            return reply("❎ Please specify a valid number between 1 and 100.");
+        }
+
+        if (!message) return reply("❎ Please provide a message to send.");
+
+        await reply(`⏳ Sending "${message}" ${count} times. This may take a while...`);
+
+        for (let i = 0; i < count; i++) {
+            await conn.sendMessage(from, { 
+                text: message,
+                ...newsletterConfig
+            }, { quoted: m });
+            await sleep(1000);
+        }
+
+        await reply(`✅ Successfully sent the message ${count} times.`);
+
+    } catch (error) {
+        console.error("❌ Error in ask command:", error);
+        reply("❎ An error occurred while processing your request.");
     }
-
-    if (!args[0]) {
-      return reply("✳️ Use this command like:\n *Example:* .send 10,I love you");
-    }
-
-    const [countStr, ...messageParts] = args.join(" ").split(",");
-    const count = parseInt(countStr.trim());
-    const message = messageParts.join(",").trim();
-
-    if (isNaN(count) || count <= 0 || count > 100) {
-      return reply("❎ Please specify a valid number between 1 and 100.");
-    }
-
-    if (!message) {
-      return reply("❎ Please provide a message to send.");
-    }
-
-    reply(`⏳ Sending "${message}" ${count} times. This may take a while...`);
-
-    for (let i = 0; i < count; i++) {
-      await conn.sendMessage(m.from, { text: message }, { quoted: m });
-      await sleep(1000); // 1-second delay
-    }
-
-    reply(`✅ Successfully sent the message ${count} times.`);
-  } catch (error) {
-    console.error("❌ Error in ask command:", error);
-    reply("❎ An error occurred while processing your request.");
-  }
 });
 
+// Readmore command (fixed)
 cmd({
-  pattern: "readmore",
-  alias: ["rm", "rmore", "readm"],
-  desc: "Generate a Read More message.",
-  category: "convert",
-  use: ".readmore <text>",
-  react: "📝",
-  filename: __filename
-}, async (conn, m, store, { args, reply }) => {
-  try {
-    const inputText = args.join(" ") || "No text provided.";
-    const readMore = String.fromCharCode(8206).repeat(4000); // Creates a large hidden gap
-    const message = `${inputText} ${readMore} Continue Reading...`;
+    pattern: "readmore",
+    alias: ["rm", "rmore", "readm"],
+    desc: "Generate a Read More message.",
+    category: "convert",
+    use: ".readmore <text>",
+    react: "📝",
+    filename: __filename
+}, async (conn, mek, m, { from, args, reply }) => {
+    try {
+        const inputText = args.join(" ") || "No text provided.";
+        const readMore = String.fromCharCode(8206).repeat(4001); // Creates a large hidden gap
+        const message = `${inputText}${readMore}`;
 
-    await conn.sendMessage(m.from, { text: message }, { quoted: m });
-  } catch (error) {
-    console.error("❌ Error in readmore command:", error);
-    reply("❌ An error occurred: " + error.message);
-  }
+        await conn.sendMessage(from, { 
+            text: message,
+            ...newsletterConfig
+        }, { quoted: m });
+    } catch (error) {
+        console.error("❌ Error in readmore command:", error);
+        reply("❌ An error occurred: " + error.message);
+    }
 });
