@@ -51,8 +51,8 @@ END:VCARD`
                     title: 'CASEYRHODES XMD IS ALIVE',
                     body: '© CASEYRHODES Tᴇᴄʜ ♡',
                     mediaType: 1,
-                    thumbnailUrl: 'https://i.imgur.com/your-image.jpg', // Replace with actual URL
-                    sourceUrl: 'https://whatsapp.com/channel/0029VbANWX1DuMRi1VNPlB0y'
+                    thumbnailUrl: 'https://i.ibb.co/8gHCXCV9/IMG-20250216-WA0009.jpg', // Replace with actual URL
+                    sourceUrl: 'https://whatsapp.com/channel/0029VakUEfb4o7qVdkwPk83E'
                 }
             }
         }, { quoted: mek });
