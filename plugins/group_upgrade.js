@@ -38,10 +38,9 @@ async(conn, mek, m, {
         await conn.groupParticipantsUpdate(from, [jid], "promote");
         reply(`✅ Successfully promoted @${number} to admin.`, { mentions: [jid] });
         
-        // Send image + caption with newsletter integration
+        // Send message with newsletter integration
         await conn.sendMessage(from, { 
-            image: { url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg` },  
-            caption: `🚀 *Admin Promotion Successful!*\n\n@${number} has been promoted to admin by @${sender.split("@")[0]}\n\n_🔔 Stay updated with our latest news!_`,
+            text: `🚀 *Admin Promotion Successful!*\n\n@${number} has been promoted to admin by @${sender.split("@")[0]}\n\n_🔔 Stay updated with our latest news!_`,
             contextInfo: {
                 mentionedJid: [jid, sender],
                 forwardingScore: 999,
@@ -97,10 +96,9 @@ async(conn, mek, m, {
         await conn.groupParticipantsUpdate(from, [jid], "demote");
         reply(`✅ Successfully demoted @${number} to a normal member.`, { mentions: [jid] });
         
-        // Send image + caption with newsletter integration
+        // Send message with newsletter integration
         await conn.sendMessage(from, { 
-            image: { url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg` },  
-            caption: `📉 *Admin Demotion Notice*\n\n@${number} has been demoted by @${sender.split("@")[0]}\n\n_🔔 Stay updated with our latest news!_`,
+            text: `📉 *Admin Demotion Notice*\n\n@${number} has been demoted by @${sender.split("@")[0]}\n\n_🔔 Stay updated with our latest news!_`,
             contextInfo: {
                 mentionedJid: [jid, sender],
                 forwardingScore: 999,
