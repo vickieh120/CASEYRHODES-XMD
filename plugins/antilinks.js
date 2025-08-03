@@ -2,7 +2,7 @@ const { cmd } = require('../command');
 const config = require("../config");
 
 cmd({
-  'on': "body"
+  'on': "text"
 }, async (conn, m, store, {
   from,
   body,
@@ -23,22 +23,23 @@ cmd({
       return;
     }
 
-    // List of link patterns to detect
+    // List of link patterns to detect (updated for latest WhatsApp)
     const linkPatterns = [
       /https?:\/\/(?:chat\.whatsapp\.com|wa\.me)\/\S+/gi, // WhatsApp links
       /https?:\/\/(?:api\.whatsapp\.com|wa\.me)\/\S+/gi,  // WhatsApp API links
       /wa\.me\/\S+/gi,                                    // WhatsApp.me links
-      /https?:\/\/(?:t\.me|telegram\.me)\/\S+/gi,         // Telegram links
-      /https?:\/\/(?:www\.)?\.com\/\S+/gi,                // Generic .com links
-      /https?:\/\/(?:www\.)?twitter\.com\/\S+/gi,         // Twitter links
+      /https?:\/\/(?:t\.me|telegram\.me|telegram\.dog)\/\S+/gi, // Telegram links
+      /https?:\/\/(?:www\.)?[\w-]+\.com\/\S+/gi,          // Generic .com links
+      /https?:\/\/(?:www\.)?x\.com\/\S+/gi,               // X (Twitter) links
       /https?:\/\/(?:www\.)?linkedin\.com\/\S+/gi,        // LinkedIn links
       /https?:\/\/(?:whatsapp\.com|channel\.me)\/\S+/gi,  // Other WhatsApp/channel links
       /https?:\/\/(?:www\.)?reddit\.com\/\S+/gi,          // Reddit links
-      /https?:\/\/(?:www\.)?discord\.com\/\S+/gi,         // Discord links
+      /https?:\/\/(?:www\.)?discord\.(?:com|gg)\/\S+/gi,  // Discord links
       /https?:\/\/(?:www\.)?twitch\.tv\/\S+/gi,           // Twitch links
       /https?:\/\/(?:www\.)?vimeo\.com\/\S+/gi,           // Vimeo links
       /https?:\/\/(?:www\.)?dailymotion\.com\/\S+/gi,     // Dailymotion links
-      /https?:\/\/(?:www\.)?medium\.com\/\S+/gi           // Medium links
+      /https?:\/\/(?:www\.)?medium\.com\/\S+/gi,           // Medium links
+      /https?:\/\/(?:www\.)?instagram\.com\/\S+/gi        // Instagram links
     ];
 
     // Check if message contains any forbidden links
@@ -75,6 +76,22 @@ cmd({
                 `*╰────────────────*`,
           mentions: [sender]
         });
+
+        // Send image + caption + audio combined with newsletter info
+        const status = "This is a warning message from CASEYRHODES XMD";
+        await conn.sendMessage(from, { 
+          caption: status,
+          contextInfo: {
+            mentionedJid: [sender],
+            forwardingScore: 999,
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+              newsletterJid: '120363302677217436@newsletter',
+              newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐀𝐍𝐓𝐈𝐋𝐈𝐍𝐊 👻',
+              serverMessageId: 143
+            }
+          }
+        }, { quoted: m });
       } else {
         // Remove user if they exceed warning limit
         await conn.sendMessage(from, {
