@@ -15,28 +15,38 @@ cmd({
 
         // If it's a group, reply with the group JID
         if (isGroup) {
-            return reply(`Group JID: *${from}*`);
-        }
-
-        // Send image + caption + audio combined
-        await conn.sendMessage(from, { 
-            image: { url: `https://files.catbox.moe/y3j3kl.jpg` },  
-            caption: "𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇",
-            contextInfo: {
-                mentionedJid: [m.sender],
-                forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
-                    serverMessageId: 143
+            await conn.sendMessage(from, {
+                text: `Group JID: *${from}*`,
+                contextInfo: {
+                    mentionedJid: [m.sender],
+                    forwardingScore: 999,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: '120363302677217436@newsletter',
+                        newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                        serverMessageId: 143
+                    }
                 }
-            }
-        });
+            });
+            return;
+        }
 
         // If it's a personal chat, reply with the user's JID
         if (!isGroup) {
-            return reply(`User JID: *${sender}@s.whatsapp.net*`);
+            await conn.sendMessage(from, {
+                text: `User JID: *${sender}@s.whatsapp.net*`,
+                contextInfo: {
+                    mentionedJid: [m.sender],
+                    forwardingScore: 999,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: '120363302677217436@newsletter',
+                        newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+                        serverMessageId: 143
+                    }
+                }
+            });
+            return;
         }
 
     } catch (e) {
