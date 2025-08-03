@@ -30,12 +30,19 @@ async (conn, mek, m, { from, sender, reply }) => {
                 mentionedJid: [sender],
                 forwardingScore: 999,
                 isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: "CASEYRHODES TECH 👻",
+                    serverMessageId: 143
+                },
                 externalAdReply: {
-                    title: "Audio Bot",
-                    body: "Random Audio Message",
+                    title: "CASEYRHODES-XMD",
+                    body: "Multi-Device WhatsApp Bot",
                     thumbnailUrl: "https://files.catbox.moe/y3j3kl.jpg",
                     mediaType: 1,
-                    renderLargerThumbnail: true
+                    renderLargerThumbnail: true,
+                    showAdAttribution: true,
+                    sourceUrl: "https://github.com/caseyweb/CASEYRHODES-XMD"
                 }
             }
         }, { quoted: m });
