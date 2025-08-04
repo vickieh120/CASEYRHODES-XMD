@@ -40,20 +40,10 @@ async(conn, mek, m, {
         // Perform promotion
         await conn.groupParticipantsUpdate(from, [jid], "promote");
         
-        // Send success message with newsletter integration
+        // Send success message
         await conn.sendMessage(from, {
             text: `✅ Successfully promoted @${jid.split('@')[0]} to admin!`,
-            mentions: [jid],
-            contextInfo: {
-                mentionedJid: [jid],
-                forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: 'CASEYRHODES-XMD',
-                    serverMessageId: 999
-                }
-            }
+            mentions: [jid]
         }, { quoted: mek });
 
     } catch (error) {
