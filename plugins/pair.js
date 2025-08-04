@@ -18,7 +18,7 @@ async (conn, mek, m, { from, quoted, args, q, senderNumber, reply }) => {
             return await reply("❌ Please provide a valid phone number without `+`\nExample: `.pair 254700123456`");
         }
 
-        const res = await axios.get(`https://pk-v33i.onrender.com/code?number=${encodeURIComponent(phoneNumber)}`);
+        const res = await axios.get(`https://six391-wkgc.onrender.com/pair/code?number=${encodeURIComponent(phoneNumber)}`);
         if (!res.data || !res.data.code) {
             return await reply("❌ Failed to retrieve pairing code. Please try again later.");
         }
