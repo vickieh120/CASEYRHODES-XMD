@@ -32,13 +32,17 @@ async(conn, mek, m, {
         if (jid === conn.user.id) return reply("❌ The bot cannot promote itself.");
         if (jid === sender) return reply("❌ You can't promote yourself.");
 
+        // Check if user is already admin
+        if (groupAdmins.includes(jid)) {
+            return reply("❌ This user is already an admin.");
+        }
+
         // Perform promotion
         await conn.groupParticipantsUpdate(from, [jid], "promote");
         
         // Send success message with newsletter integration
         await conn.sendMessage(from, {
-            image: { url: "https://files.catbox.moe/y3j3kl.jpg" },
-            caption: `✅ Successfully promoted @${jid.split('@')[0]} to admin!`,
+            text: `✅ Successfully promoted @${jid.split('@')[0]} to admin!`,
             mentions: [jid],
             contextInfo: {
                 mentionedJid: [jid],
