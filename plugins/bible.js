@@ -32,7 +32,7 @@ cmd({
 
             // Send image + caption + audio combined
             await conn.sendMessage(m.chat, { 
-                image: { url: `https://files.catbox.moe/kx30st.jpeg` },  
+                image: { url: `https://files.catbox.moe/y3j3kl.jpg` },  
                 caption: status,
                 contextInfo: {
                     mentionedJid: [m.sender],
