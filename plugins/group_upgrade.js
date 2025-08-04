@@ -1,5 +1,3 @@
-const { cmd } = require('../command');
-
 cmd({
     pattern: "promote",
     alias: ["p", "admin", "makeadmin"],
@@ -25,44 +23,29 @@ async(conn, mek, m, {
     }
 
     if (number === botNumber) return reply("❌ The bot cannot promote itself.");
-
     const jid = number + "@s.whatsapp.net";
 
     try {
         await conn.groupParticipantsUpdate(from, [jid], "promote");
-        reply(`✅ Successfully promoted @${number} to admin.`, { mentions: [jid] });
         
-        const status = `🚀 *User Promoted Successfully!*\n\n📌 *Promoted User:* @${number}\n👑 *Promoted By:* @${sender.split('@')[0]}\n💬 *Group:* ${groupName}\n\n✨ _Powered by 𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐀𝐈_`;
-        
-        // Send image + caption with newsletter forwarding (safe method)
-        const msgOptions = {
-            image: { url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg` },
-            caption: status,
+        // Integrated newsletter image and promotion message
+        await conn.sendMessage(from, {
+            image: { url: `https://files.catbox.moe/y3j3kl.jpg` },
+            caption: `✅ Successfully promoted @${number} to admin.`,
+            mentions: [jid],
             contextInfo: {
-                mentionedJid: [jid, sender],
+                mentionedJid: [sender],
                 forwardingScore: 999,
                 isForwarded: true,
-                externalAdReply: {  // Alternative to newsletter forwarding (more reliable)
-                    title: "𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐀𝐋𝐈𝐕𝐄🍀",
-                    body: "Official Promotion Update",
-                    thumbnail: { url: "https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg" },
-                    mediaType: 1,
-                    mediaUrl: "",
-                    sourceUrl: "https://whatsapp.com/channel/0029Va9AJSQ5J3Y5Y0Y5Y5Y5",
-                    showAdAttribution: true
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: 'CASEYRHODES-XMD',
+                    serverMessageId: 999
                 }
             }
-        };
-
-        await conn.sendMessage(from, msgOptions, { quoted: mek });
+        });
     } catch (error) {
         console.error("Promote command error:", error);
-        if (error.message.includes("not an admin")) {
-            reply("❌ The user is already an admin.");
-        } else if (error.message.includes("newsletter")) {
-            reply("📢 Promotion successful, but newsletter forwarding failed.");
-        } else {
-            reply("❌ Failed to promote the member.");
-        }
+        reply("❌ Failed to promote the member.");
     }
 });
