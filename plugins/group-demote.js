@@ -37,10 +37,12 @@ async(conn, mek, m, {
     try {
         await conn.groupParticipantsUpdate(from, [jid], "demote");
         
-        // Success message with newsletter context
+        const status = `✅ Successfully demoted @${number} to a normal member.`;
+        
         await conn.sendMessage(from, {
-            text: `✅ Successfully demoted @${number} to a normal member.`,
+            text: status,
             mentions: [jid],
+            image: { url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg` },
             contextInfo: {
                 mentionedJid: [jid],
                 forwardingScore: 999,
