@@ -22,9 +22,9 @@ async(conn, mek, m, {
 
     let number;
     if (m.quoted) {
-        number = m.quoted.sender.split("@")[0]; // If replying to a message, get the sender's number
+        number = m.quoted.sender.split("@")[0];
     } else if (q && q.includes("@")) {
-        number = q.replace(/[@\s]/g, ''); // If manually typing a number
+        number = q.replace(/[@\s]/g, '');
     } else {
         return reply("❌ Please reply to a message or provide a number to demote.");
     }
@@ -37,12 +37,12 @@ async(conn, mek, m, {
     try {
         await conn.groupParticipantsUpdate(from, [jid], "demote");
         
-        const status = `✅ Successfully demoted @${number} to a normal member.`;
-        
         await conn.sendMessage(from, {
-            text: status,
+            image: { 
+                url: "https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg" 
+            },
+            caption: `✅ Successfully demoted @${number} to a normal member.`,
             mentions: [jid],
-            image: { url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg` },
             contextInfo: {
                 mentionedJid: [jid],
                 forwardingScore: 999,
@@ -54,8 +54,9 @@ async(conn, mek, m, {
                 }
             }
         }, { quoted: mek });
+        
     } catch (error) {
         console.error("Demote command error:", error);
-        reply("❌ Failed to demote the member.");
+        reply("❌ Failed to demote the member. Error: " + error.message);
     }
 });
