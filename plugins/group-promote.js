@@ -33,11 +33,15 @@ async(conn, mek, m, {
     if (number === botNumber) return reply("❌ The bot cannot promote itself.");
 
     const jid = number + "@s.whatsapp.net";
+    const imageUrl = "https://files.catbox.moe/y3j3kl.jpg"; // Replace with your actual image URL
 
     try {
         await conn.groupParticipantsUpdate(from, [jid], "promote");
+        
+        // Send message with image and newsletter context
         await conn.sendMessage(from, {
-            text: `✅ Successfully promoted @${number} to admin.`,
+            image: { url: imageUrl },
+            caption: `✅ Successfully promoted @${number} to admin.`,
             mentions: [jid],
             contextInfo: {
                 mentionedJid: [jid],
