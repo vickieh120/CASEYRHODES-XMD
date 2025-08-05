@@ -34,19 +34,24 @@ async (conn, mek, m, {
     try {
         await conn.groupParticipantsUpdate(from, [jid], "remove");
         
-        // Proper WhatsApp newsletter JID format
+        // Create the forwarded newsletter message
+        const newsletterMessage = {
+            conversation: `🗞️ Newsletter Update: Member Removal\n\nUser @${number} has been removed from the group by admin.`
+        };
+
         const msg = {
-            text: `🗞️ *CASEYRHODES-XMD Newsletter Update*\n\n✅ Successfully removed @${number}\n\n_Action performed via official newsletter integration_`,
+            text: `✅ Successfully removed @${number}\n\n_This action was performed via CASEYRHODES-XMD Newsletter integration_`,
             mentions: [jid, m.sender],
             contextInfo: {
                 forwardingNewsletterInfo: {
-                    newsletterJid: '120363302677217436@g.us', // Corrected JID format
-                    newsletterName: 'CASEYRHODES-XMD',
+                    newsletterJid: '120363302677217436@g.us',
+                    newsletterName: 'CASEYRHODES-XMD Newsletter',
                     newsletterServerId: 143,
                     newsletterType: 0
                 },
                 isForwarded: true,
-                forwardCount: 1
+                forwardCount: 1,
+                forwardedNewsletterMessage: newsletterMessage
             }
         };
 
