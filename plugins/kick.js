@@ -33,19 +33,21 @@ async (conn, mek, m, {
     const newsletterInfo = {
         newsletterJid: '120363302677217436@newsletter',
         newsletterName: 'CASEYRHODES-XMD💖',
-        serverMessageId: 143
+        newsletterMessageId: 143
     };
 
     try {
         await conn.groupParticipantsUpdate(from, [jid], "remove");
         
         const msg = {
-            text: `✅ Successfully removed @${number}\n\nAction performed by CASEYRHODES-XMD Newsletter`,
+            text: `🗞️ *CASEYRHODES-XMD Newsletter Update*\n\n✅ Successfully removed @${number}\n\n_Action performed via official newsletter integration_`,
             mentions: [jid, m.sender],
             contextInfo: {
+                newsletterJid: newsletterInfo.newsletterJid,
+                newsletterName: newsletterInfo.newsletterName,
+                newsletterMessageId: newsletterInfo.newsletterMessageId,
                 isForwarded: true,
-                forwardingScore: 999,
-                newsletterLinkInfo: newsletterInfo
+                forwardingScore: 999
             }
         };
 
@@ -53,6 +55,6 @@ async (conn, mek, m, {
 
     } catch (error) {
         console.error("Remove command error:", error);
-        reply("❌ Failed to remove the member.");
+        reply("❌ Failed to remove the member. Please try again.");
     }
 });
