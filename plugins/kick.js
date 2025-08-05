@@ -45,13 +45,7 @@ async (conn, mek, m, {
             contextInfo: {
                 isForwarded: true,
                 forwardingScore: 999,
-                newsletterLinkInfo: newsletterInfo,
-                externalAdReply: {
-                    title: newsletterInfo.newsletterName,
-                    body: "Group Management Action",
-                    mediaType: 1,
-                    showAdAttribution: true
-                }
+                newsletterLinkInfo: newsletterInfo
             }
         };
 
