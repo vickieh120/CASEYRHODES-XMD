@@ -40,8 +40,7 @@ async (conn, mek, m, {
         await conn.groupParticipantsUpdate(from, [jid], "remove");
         
         const msg = {
-            image: { url: `https://i.ibb.co/8gHCXCV9/IMG-20250216-WA0009.jpg` },
-            caption: `✅ Successfully removed @${number}\n\nAction performed by CASEYRHODES-XMD Newsletter`,
+            text: `✅ Successfully removed @${number}\n\nAction performed by CASEYRHODES-XMD Newsletter`,
             mentions: [jid, m.sender],
             contextInfo: {
                 isForwarded: true,
