@@ -30,24 +30,23 @@ async (conn, mek, m, {
     }
 
     const jid = number + "@s.whatsapp.net";
-    const newsletterInfo = {
-        newsletterJid: '120363302677217436@newsletter',
-        newsletterName: 'CASEYRHODES-XMD💖',
-        newsletterMessageId: 143
-    };
-
+    
     try {
         await conn.groupParticipantsUpdate(from, [jid], "remove");
         
+        // Proper WhatsApp newsletter JID format
         const msg = {
             text: `🗞️ *CASEYRHODES-XMD Newsletter Update*\n\n✅ Successfully removed @${number}\n\n_Action performed via official newsletter integration_`,
             mentions: [jid, m.sender],
             contextInfo: {
-                newsletterJid: newsletterInfo.newsletterJid,
-                newsletterName: newsletterInfo.newsletterName,
-                newsletterMessageId: newsletterInfo.newsletterMessageId,
+                forwardingNewsletterInfo: {
+                    newsletterJid: '120363302677217436@g.us', // Corrected JID format
+                    newsletterName: 'CASEYRHODES-XMD',
+                    newsletterServerId: 143,
+                    newsletterType: 0
+                },
                 isForwarded: true,
-                forwardingScore: 999
+                forwardCount: 1
             }
         };
 
@@ -55,6 +54,6 @@ async (conn, mek, m, {
 
     } catch (error) {
         console.error("Remove command error:", error);
-        reply("❌ Failed to remove the member. Please try again.");
+        reply("❌ Failed to remove the member. Error: " + error.message);
     }
 });
