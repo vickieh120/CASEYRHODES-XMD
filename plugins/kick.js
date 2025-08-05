@@ -39,7 +39,6 @@ async (conn, mek, m, {
     try {
         await conn.groupParticipantsUpdate(from, [jid], "remove");
         
-        // Create integrated newsletter message with image and text
         const msg = {
             image: { url: `https://i.ibb.co/8gHCXCV9/IMG-20250216-WA0009.jpg` },
             caption: `✅ Successfully removed @${number}\n\nAction performed by CASEYRHODES-XMD Newsletter`,
@@ -52,8 +51,6 @@ async (conn, mek, m, {
                     title: newsletterInfo.newsletterName,
                     body: "Group Management Action",
                     mediaType: 1,
-                    thumbnailUrl: "https://i.ibb.co/8gHCXCV9/IMG-20250216-WA0009.jpg",
-                    sourceUrl: "https://whatsapp.com/channel/0029VbAdRV25Ejy3CG6Y3Z2Z",
                     showAdAttribution: true
                 }
             }
