@@ -1,72 +1,75 @@
 const { cmd } = require("../command");
 const fetch = require("node-fetch");
 
-cmd({
-  'pattern': 'gitclone',
-  'alias': ["git"],
-  'desc': "Download GitHub repository as a zip file.",
-  'react': '📦',
-  'category': "downloader",
-  'filename': __filename
-}, async (message, client, args, { from, quoted, args: commandArgs, reply }) => {
-  if (!commandArgs[0]) {
-    return reply("Where is the GitHub link?\n\nExample:\n.gitclone https://github.com/caseyweb/CASEYRHODES-XMD");
+// Verified Contact
+const quotedContact = {
+  key: {
+    fromMe: false,
+    participant: `0@s.whatsapp.net`,
+    remoteJid: "status@broadcast"
+  },
+  message: {
+    contactMessage: {
+      displayName: "CASEYRHODES VERIFIED ✅",
+      vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:CASEYRHODES VERIFIED ✅\nORG:CASEYRHODES-TECH BOT;\nTEL;type=CELL;type=VOICE;waid=255767862457:+255 767 862457\nEND:VCARD"
+    }
   }
+};
 
-  // Validate GitHub URL
-  if (!/^(https:\/\/)?github\.com\/.+/.test(commandArgs[0])) {
-    return reply("⚠️ Invalid GitHub link. Please provide a valid GitHub repository URL.");
+cmd({
+  pattern: "gitclone",
+  alias: ["git"],
+  desc: "Download GitHub repository as a zip file.",
+  react: "📦",
+  category: "downloader",
+  filename: __filename
+}, async (conn, m, match, { from, quoted, args, reply }) => {
+  const link = args[0];
+  if (!link) return reply("📎 Please provide a GitHub link.\n\nExample:\n.gitclone https://github.com/caseyweb/CASEYRHODES-XMD");
+
+  if (!/^https:\/\/github\.com\/[^\/]+\/[^\/]+/.test(link)) {
+    return reply("⚠️ Invalid GitHub URL.");
   }
 
   try {
-    const githubRegex = /github\.com\/([^\/]+)\/([^\/]+)(?:\.git)?/i;
-    const [, username, repoName] = commandArgs[0].match(githubRegex) || [];
-    
-    if (!username || !repoName) {
-      throw new Error("Invalid GitHub URL format.");
-    }
+    const match = link.match(/github\.com\/([^\/]+)\/([^\/]+)(?:\.git)?/i);
+    if (!match) return reply("❌ Couldn't extract repo data.");
+    const user = match[1], repo = match[2];
 
-    const zipUrl = `https://api.github.com/repos/${username}/${repoName}/zipball`;
-    
-    // Check if repository exists
-    const headResponse = await fetch(zipUrl, { method: "HEAD" });
-    if (!headResponse.ok) {
-      throw new Error(`Repository not found or inaccessible (HTTP ${headResponse.status}).`);
-    }
+    const downloadURL = `https://api.github.com/repos/${user}/${repo}/zipball`;
+    const headCheck = await fetch(downloadURL, { method: "HEAD" });
 
-    // Get filename from content-disposition header or use default
-    const contentDisposition = headResponse.headers.get("content-disposition");
-    let fileName = contentDisposition 
-      ? contentDisposition.match(/filename=(.*)/)[1] 
-      : `${repoName}.zip`;
+    if (!headCheck.ok) throw new Error("Repository not found.");
 
-    // Remove quotes if present in filename
-    fileName = fileName.replace(/['"]/g, '');
+    const filenameHeader = headCheck.headers.get("content-disposition");
+    const fileName = filenameHeader ? filenameHeader.match(/filename="?(.+?)"?$/)?.[1] : `${repo}.zip`;
 
-    reply(`*📥 Downloading Repository...*\n\n*Repository:* ${username}/${repoName}\n*Filename:* ${fileName}\n\n> *© ᴄᴀsᴇʏʀʜᴏᴅᴇs ᴛᴇᴄʜ*`);
+    await reply(`╭───〔 *CASEYRHODES XMD GIT CLONE* 〕───⬣
+│
+│ 📁 *User:* ${user}
+│ 📦 *Repo:* ${repo}
+│ 📎 *Filename:* ${fileName}
+│
+╰───⬣ Downloading...`);
 
-    await client.sendMessage(from, {
-      document: {
-        url: zipUrl
-      },
-      fileName: fileName,
+    await conn.sendMessage(from, {
+      document: { url: downloadURL },
+      fileName: `${fileName}.zip`,
       mimetype: 'application/zip',
       contextInfo: {
-        mentionedJid: [message.sender],
+        mentionedJid: [m.sender],
         forwardingScore: 999,
         isForwarded: true,
         forwardedNewsletterMessageInfo: {
           newsletterJid: "120363302677217436@newsletter",
-          newsletterName: "CASEYRHODES-XMD GITHUB CLONE",
+          newsletterName: "CASEYRHODES XMD GITHUB CLONE 👻",
           serverMessageId: 143
         }
       }
-    }, {
-      quoted: message
-    });
+    }, { quoted: quotedContact });
 
-  } catch (error) {
-    console.error("GitClone Error:", error);
-    reply(`❌ Failed to download the repository. ${error.message || "Please try again later."}`);
+  } catch (e) {
+    console.error("❌ GitClone Error:", e);
+    return reply("❌ Failed to download repository.\nCheck the link or try later.");
   }
 });
