@@ -72,11 +72,31 @@ async (conn, mek, m, { from, quoted, isGroup, isAdmins, isCreator, fromMe, reply
                     `${index + 1}. @${member.split('@')[0]}`
                 ).join('\n');
                 
-                const message = `🟢 *CASEYRHODES XMD ONLINE MEMBERS* (${onlineArray.length}/${groupData.participants.length}):\n\n${onlineList}`;
-                
+                // Combined message with image, online list, and newsletter info
+                const combinedMessage = {
+                    image: { url: 'https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg' },
+                    caption: `🟢 *CASEYRHODES XMD ONLINE MEMBERS* (${onlineArray.length}/${groupData.participants.length}):\n\n${onlineList}\n\n🔊 _BOT IS ACTIVE AND MONITORING_ 🔊`,
+                    mentions: onlineArray,
+                    contextInfo: {
+                        mentionedJid: onlineArray,
+                        forwardingScore: 999,
+                        isForwarded: true,
+                        forwardedNewsletterMessageInfo: {
+                            newsletterJid: '120363302677217436@newsletter',
+                            newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐀𝐋𝐈𝐕𝐄🍀',
+                            serverMessageId: 143
+                        }
+                    }
+                };
+
+                // Send the combined message (image + caption + online list + newsletter)
+                await conn.sendMessage(from, combinedMessage, { quoted: mek });
+
+                // Send audio separately
                 await conn.sendMessage(from, { 
-                    text: message,
-                    mentions: onlineArray
+                    audio: { url: 'https://files.catbox.moe/dcxfi1.mp3' },
+                    mimetype: 'audio/mp4',
+                    ptt: true
                 }, { quoted: mek });
             }
         };
