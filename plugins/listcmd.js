@@ -54,10 +54,7 @@ cmd({
         externalAdReply: {
           title: "CASEYRHODES TECH",
           body: `ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴄᴀsᴇʏʀʜᴏᴅᴇs ᴛᴇᴄʜ`,
-          mediaType: 1,
-          sourceUrl: "https://github.com/caseyweb/CASEYRHODES-XMD",
-          renderLargerThumbnail: false,
-          showAdAttribution: true
+          mediaType: 1
         }
       }
     }, { quoted: m });
