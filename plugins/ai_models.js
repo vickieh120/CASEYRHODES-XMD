@@ -50,11 +50,11 @@ async (conn, mek, m, { from, args, q, reply, react }) => {
             return reply("AI failed to respond. Please try again later.");
         }
         
-        const status = `🤖 *CASEYRHODES-XMD AI Response:*\n\n${data.message}`;
+        const status = `🤖`\`\`\ *CASEYRHODES-XMD AI Response:*`\`\`\\n\n${data.message}`;
         
         // Send image + caption + audio combined with newsletter info
         await conn.sendMessage(from, { 
-            image: { url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg` },  
+            image: { url: `https://files.catbox.moe/y3j3kl.jpg` },  
             caption: status,
             contextInfo: {
                 mentionedJid: [m.sender],
