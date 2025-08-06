@@ -1,49 +1,60 @@
-const config = require('../config');
 const { cmd } = require('../command');
 const { ytsearch } = require('@dark-yasiya/yt-dl.js');
-const fetch = require('node-fetch'); // Make sure to install: npm install node-fetch
+const fetch = require('node-fetch');
 
-// MP4 video download
+// MP4 video download command
 cmd({
     pattern: "mp4",
-    alias: ["video7"],
+    alias: ["videos"],
     react: "🎥",
     desc: "Download YouTube video",
     category: "main",
-    use: '.mp4 <Youtube URL or Search Query>',
+    use: '.mp4 <YouTube URL or search term>',
     filename: __filename
 }, async (conn, mek, m, { from, prefix, quoted, q, reply }) => {
     try {
-        if (!q) return await reply("❌ Please provide a YouTube URL or video name.");
+        if (!q) return await reply("Please provide a YouTube URL or search term.");
 
         // Search YouTube
-        const yt = await ytsearch(q);
-        if (yt.results.length < 1) return reply("🔍 No results found!");
+        let yt;
+        try {
+            yt = await ytsearch(q);
+            if (!yt.results || yt.results.length === 0) {
+                return reply("No videos found for your search.");
+            }
+        } catch (searchError) {
+            console.error("YouTube search error:", searchError);
+            return reply("Failed to search YouTube. Please try again.");
+        }
 
         const yts = yt.results[0];
         const apiUrl = `https://apis.davidcyriltech.my.id/download/ytmp4?url=${encodeURIComponent(yts.url)}`;
 
-        // Fetch video data
-        const response = await fetch(apiUrl);
-        const data = await response.json();
-
-        if (!data?.result?.download_url) {
-            return reply("⚠️ Failed to fetch video. Try again later.");
+        // Fetch video download link
+        let data;
+        try {
+            const response = await fetch(apiUrl);
+            data = await response.json();
+            if (!data?.result?.download_url) {
+                throw new Error("Invalid API response");
+            }
+        } catch (apiError) {
+            console.error("API fetch error:", apiError);
+            return reply("Failed to fetch video. The service might be down.");
         }
 
-        // Message template
-        const ytmsg = `📹 *Video Details*\n
-🎬 *Title:* ${yts.title}
-⏳ *Duration:* ${yts.timestamp}
-👀 *Views:* ${yts.views}
-👤 *Author:* ${yts.author.name}
-🔗 *Link:* ${yts.url}\n
-*Choose format:*\n
-1️⃣ *Document* (no preview)
-2️⃣ *Normal Video* (with preview)\n
-_Reply with 1 or 2_`;
+        // Prepare message with newsletter context
+        const ytmsg = `📹 *Video Details*\n\n` +
+                     `🎬 *Title:* ${yts.title}\n` +
+                     `⏳ *Duration:* ${yts.timestamp}\n` +
+                     `👀 *Views:* ${yts.views}\n` +
+                     `👤 *Author:* ${yts.author.name}\n` +
+                     `🔗 *Link:* ${yts.url}\n\n` +
+                     `*Choose download format:*\n` +
+                     `1. 📄 Document (no preview)\n` +
+                     `2. ▶️ Normal Video (with preview)\n\n` +
+                     `_Reply with 1 or 2_`;
 
-        // Newsletter Context
         const contextInfo = {
             mentionedJid: [m.sender],
             forwardingScore: 999,
@@ -55,30 +66,40 @@ _Reply with 1 or 2_`;
             }
         };
 
-        // Send thumbnail + options
-        const videoMsg = await conn.sendMessage(
-            from,
-            {
-                image: { url: yts.thumbnail },
-                caption: ytmsg,
-                contextInfo
-            },
-            { quoted: mek }
-        );
+        // Send the video options
+        let videoMsg;
+        try {
+            videoMsg = await conn.sendMessage(
+                from,
+                {
+                    image: { url: yts.thumbnail },
+                    caption: ytmsg,
+                    contextInfo
+                },
+                { quoted: mek }
+            );
+        } catch (sendError) {
+            console.error("Message send error:", sendError);
+            return reply("Failed to send video options. Please try again.");
+        }
 
-        // Listener for user's choice (with timeout)
+        // Set up reply handler
         const choiceHandler = async (msgUpdate) => {
-            const msg = msgUpdate.messages[0];
-            if (
-                !msg?.message?.extendedTextMessage ||
-                !msg.message.extendedTextMessage.contextInfo ||
-                msg.message.extendedTextMessage.contextInfo.stanzaId !== videoMsg.key.id
-            ) return;
-
-            const choice = msg.message.extendedTextMessage.text.trim();
-            await conn.sendMessage(from, { react: { text: "⬇️", key: msg.key } });
-
             try {
+                const msg = msgUpdate.messages[0];
+                
+                // Check if this is a reply to our message
+                if (!msg?.message?.extendedTextMessage?.contextInfo || 
+                    msg.message.extendedTextMessage.contextInfo.stanzaId !== videoMsg.key.id) {
+                    return;
+                }
+
+                const choice = msg.message.extendedTextMessage.text.trim();
+                await conn.sendMessage(from, { react: { text: "⬇️", key: msg.key } });
+
+                // Remove listener immediately to prevent multiple triggers
+                conn.ev.off("messages.upsert", choiceHandler);
+
                 switch (choice) {
                     case "1":
                         await conn.sendMessage(
@@ -86,8 +107,8 @@ _Reply with 1 or 2_`;
                             {
                                 document: { url: data.result.download_url },
                                 mimetype: "video/mp4",
-                                fileName: `${yts.title}.mp4`,
-                                contextInfo // Maintain newsletter context
+                                fileName: `${yts.title}.mp4`.replace(/[^\w\s.-]/gi, ''),
+                                contextInfo
                             },
                             { quoted: msg }
                         );
@@ -99,30 +120,32 @@ _Reply with 1 or 2_`;
                             {
                                 video: { url: data.result.download_url },
                                 mimetype: "video/mp4",
-                                contextInfo // Maintain newsletter context
+                                caption: yts.title,
+                                contextInfo
                             },
                             { quoted: msg }
                         );
                         break;
 
                     default:
-                        await reply("❌ Invalid choice. Reply with *1* or *2*.", { quoted: msg });
+                        await reply("Invalid choice. Please reply with 1 or 2.", { quoted: msg });
                 }
-            } catch (err) {
-                console.error("Download Error:", err);
-                await reply("⚠️ Failed to send video. Try again.");
-            } finally {
-                // Remove listener after handling
-                conn.ev.off("messages.upsert", choiceHandler);
+            } catch (handlerError) {
+                console.error("Handler error:", handlerError);
+                await reply("An error occurred while processing your request.", { quoted: msgUpdate.messages[0] });
             }
         };
 
-        // Activate listener (auto-remove after 60 sec)
+        // Add listener with timeout
         conn.ev.on("messages.upsert", choiceHandler);
-        setTimeout(() => conn.ev.off("messages.upsert", choiceHandler), 60000);
+        
+        // Auto-remove listener after 2 minutes
+        setTimeout(() => {
+            conn.ev.off("messages.upsert", choiceHandler);
+        }, 120000);
 
     } catch (error) {
-        console.error("MP4 Command Error:", error);
-        reply("❌ An error occurred. Please try again.");
+        console.error("Global error:", error);
+        reply("An unexpected error occurred. Please try again later.");
     }
 });
