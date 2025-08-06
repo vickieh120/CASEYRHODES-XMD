@@ -10,39 +10,28 @@ cmd({
 },
 async (conn, mek, m, { from, quoted, isGroup, isAdmins, isCreator, fromMe, reply }) => {
     try {
-        // Check if the command is used in a group
+        // Validate group usage
         if (!isGroup) return reply("❌ This command can only be used in a group!");
 
-        // Check if user is either creator or admin
+        // Check permissions
         if (!isCreator && !isAdmins && !fromMe) {
             return reply("❌ Only bot owner and group admins can use this command!");
         }
 
-        // Inform user that we're checking
-        await reply("🔄 Scanning for online members... This may take 15-20 seconds.");
-
         const onlineMembers = new Set();
         const groupData = await conn.groupMetadata(from);
-        const presencePromises = [];
+        
+        // Batch presence updates with error handling
+        await Promise.all(groupData.participants.map(participant => 
+            conn.presenceSubscribe(participant.id)
+                .then(() => conn.sendPresenceUpdate('composing', participant.id))
+                .catch(() => {})
+        ));
 
-        // Request presence updates for all participants
-        for (const participant of groupData.participants) {
-            presencePromises.push(
-                conn.presenceSubscribe(participant.id)
-                    .then(() => {
-                        // Additional check for better detection
-                        return conn.sendPresenceUpdate('composing', participant.id);
-                    })
-            );
-        }
-
-        await Promise.all(presencePromises);
-
-        // Presence update handler
+        // Presence tracking
         const presenceHandler = (json) => {
             for (const id in json.presences) {
                 const presence = json.presences[id]?.lastKnownPresence;
-                // Check all possible online states
                 if (['available', 'composing', 'recording', 'online'].includes(presence)) {
                     onlineMembers.add(id);
                 }
@@ -51,60 +40,52 @@ async (conn, mek, m, { from, quoted, isGroup, isAdmins, isCreator, fromMe, reply
 
         conn.ev.on('presence.update', presenceHandler);
 
-        // Longer timeout and multiple checks
-        const checks = 3;
-        const checkInterval = 5000; // 5 seconds
-        let checksDone = 0;
+        // Detection parameters
+        const detectionChecks = 3;
+        const checkInterval = 5000;
+        let checksCompleted = 0;
 
-        const checkOnline = async () => {
-            checksDone++;
+        const sendResults = async () => {
+            checksCompleted++;
             
-            if (checksDone >= checks) {
-                clearInterval(interval);
+            if (checksCompleted >= detectionChecks) {
+                // Clean up listeners
+                clearInterval(detectionInterval);
                 conn.ev.off('presence.update', presenceHandler);
                 
+                // Handle no results
                 if (onlineMembers.size === 0) {
-                    return reply("⚠️ Couldn't detect any online members. They might be hiding their presence.");
+                    return reply("⚠️ No online members detected. They may have privacy settings enabled.");
                 }
                 
-                const onlineArray = Array.from(onlineMembers);
-                const onlineList = onlineArray.map((member, index) => 
-                    `${index + 1}. @${member.split('@')[0]}`
-                ).join('\n');
-                
-                // Combined message with image, online list, and newsletter info
-                const combinedMessage = {
-                    image: { url: 'https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg' },
-                    caption: `🟢 *CASEYRHODES XMD ONLINE MEMBERS* (${onlineArray.length}/${groupData.participants.length}):\n\n${onlineList}\n\n🔊 _BOT IS ACTIVE AND MONITORING_ 🔊`,
-                    mentions: onlineArray,
+                // Format results
+                const onlineList = Array.from(onlineMembers)
+                    .map((id, index) => `${index + 1}. @${id.split('@')[0]}`)
+                    .join('\n');
+
+                await conn.sendMessage(from, {
+                    image: { url: 'https://files.catbox.moe/y3j3kl.jpg' },
+                    caption: `🟢 *ONLINE MEMBERS* (${onlineMembers.size}/${groupData.participants.length}):\n\n${onlineList}\n\n🔊 _SYSTEM ACTIVE_`,
+                    mentions: Array.from(onlineMembers),
                     contextInfo: {
-                        mentionedJid: onlineArray,
+                        mentionedJid: Array.from(onlineMembers),
                         forwardingScore: 999,
-                        isForwarded: true,
-                        forwardedNewsletterMessageInfo: {
-                            newsletterJid: '120363302677217436@newsletter',
-                            newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐀𝐋𝐈𝐕𝐄🍀',
-                            serverMessageId: 143
-                        }
+                        isForwarded: true
                     }
-                };
-
-                // Send the combined message (image + caption + online list + newsletter)
-                await conn.sendMessage(from, combinedMessage, { quoted: mek });
-
-                // Send audio separately
-                await conn.sendMessage(from, { 
-                    audio: { url: 'https://files.catbox.moe/dcxfi1.mp3' },
-                    mimetype: 'audio/mp4',
-                    ptt: true
                 }, { quoted: mek });
             }
         };
 
-        const interval = setInterval(checkOnline, checkInterval);
+        const detectionInterval = setInterval(sendResults, checkInterval);
 
-    } catch (e) {
-        console.error("Error in online command:", e);
-        reply(`An error occurred: ${e.message}`);
+        // Safety timeout
+        setTimeout(() => {
+            clearInterval(detectionInterval);
+            conn.ev.off('presence.update', presenceHandler);
+        }, checkInterval * detectionChecks + 10000);
+
+    } catch (error) {
+        console.error("Command Error:", error);
+        reply(`❌ Command failed: ${error.message}`);
     }
 });
