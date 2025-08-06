@@ -10,10 +10,10 @@ cmd({
 },
 async (conn, mek, m, { from, quoted, isGroup, isAdmins, isCreator, fromMe, reply }) => {
     try {
-        // Validate group usage
+        // Check if the command is used in a group
         if (!isGroup) return reply("❌ This command can only be used in a group!");
 
-        // Check permissions
+        // Check if user is either creator or admin
         if (!isCreator && !isAdmins && !fromMe) {
             return reply("❌ Only bot owner and group admins can use this command!");
         }
@@ -21,71 +21,96 @@ async (conn, mek, m, { from, quoted, isGroup, isAdmins, isCreator, fromMe, reply
         const onlineMembers = new Set();
         const groupData = await conn.groupMetadata(from);
         
-        // Batch presence updates with error handling
-        await Promise.all(groupData.participants.map(participant => 
+        // Request presence updates for all participants
+        const presencePromises = groupData.participants.map(participant => 
             conn.presenceSubscribe(participant.id)
                 .then(() => conn.sendPresenceUpdate('composing', participant.id))
-                .catch(() => {})
-        ));
+                .catch(() => {}) // Silently handle errors for individual participants
+        );
 
-        // Presence tracking
+        await Promise.all(presencePromises);
+
+        // Presence update handler
         const presenceHandler = (json) => {
-            for (const id in json.presences) {
-                const presence = json.presences[id]?.lastKnownPresence;
-                if (['available', 'composing', 'recording', 'online'].includes(presence)) {
-                    onlineMembers.add(id);
+            try {
+                for (const id in json.presences) {
+                    const presence = json.presences[id]?.lastKnownPresence;
+                    if (['available', 'composing', 'recording', 'online'].includes(presence)) {
+                        onlineMembers.add(id);
+                    }
                 }
+            } catch (e) {
+                console.error("Error in presence handler:", e);
             }
         };
 
         conn.ev.on('presence.update', presenceHandler);
 
-        // Detection parameters
-        const detectionChecks = 3;
+        // Setup cleanup and response
+        const checks = 3;
         const checkInterval = 5000;
-        let checksCompleted = 0;
+        let checksDone = 0;
 
-        const sendResults = async () => {
-            checksCompleted++;
-            
-            if (checksCompleted >= detectionChecks) {
-                // Clean up listeners
-                clearInterval(detectionInterval);
-                conn.ev.off('presence.update', presenceHandler);
+        const checkOnline = async () => {
+            try {
+                checksDone++;
                 
-                // Handle no results
-                if (onlineMembers.size === 0) {
-                    return reply("⚠️ No online members detected. They may have privacy settings enabled.");
-                }
-                
-                // Format results
-                const onlineList = Array.from(onlineMembers)
-                    .map((id, index) => `${index + 1}. @${id.split('@')[0]}`)
-                    .join('\n');
-
-                await conn.sendMessage(from, {
-                    image: { url: 'https://files.catbox.moe/y3j3kl.jpg' },
-                    caption: `🟢 *ONLINE MEMBERS* (${onlineMembers.size}/${groupData.participants.length}):\n\n${onlineList}\n\n🔊 _SYSTEM ACTIVE_`,
-                    mentions: Array.from(onlineMembers),
-                    contextInfo: {
-                        mentionedJid: Array.from(onlineMembers),
-                        forwardingScore: 999,
-                        isForwarded: true
+                if (checksDone >= checks) {
+                    clearInterval(interval);
+                    conn.ev.off('presence.update', presenceHandler);
+                    
+                    if (onlineMembers.size === 0) {
+                        return reply("⚠️ Couldn't detect any online members. They might be hiding their presence.");
                     }
-                }, { quoted: mek });
+                    
+                    const onlineArray = Array.from(onlineMembers);
+                    const onlineList = onlineArray.map((member, index) => 
+                        `${index + 1}. @${member.split('@')[0]}`
+                    ).join('\n');
+                    
+                    // Prepare message
+                    const messageData = {
+                        image: { url: 'https://files.catbox.moe/y3j3kl.jpg' },
+                        caption: `🟢 *CASEYRHODES XMD ONLINE MEMBERS* (${onlineArray.length}/${groupData.participants.length}):\n\n${onlineList}\n\n🔊 _BOT IS ACTIVE AND MONITORING_ 🔊`,
+                        mentions: onlineArray,
+                        contextInfo: {
+                            mentionedJid: onlineArray,
+                            forwardingScore: 999,
+                            isForwarded: true,
+                            forwardedNewsletterMessageInfo: {
+                                newsletterJid: '120363302677217436@newsletter',
+                                newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐀𝐋𝐈𝐕𝐄🍀',
+                                serverMessageId: 143
+                            }
+                        }
+                    };
+
+                    // Send message and audio
+                    await Promise.all([
+                        conn.sendMessage(from, messageData, { quoted: mek }),
+                        conn.sendMessage(from, { 
+                            audio: { url: 'https://files.catbox.moe/dcxfi1.mp3' },
+                            mimetype: 'audio/mp4',
+                            ptt: false
+                        }, { quoted: mek })
+                    ]);
+                }
+            } catch (e) {
+                console.error("Error in checkOnline:", e);
+                reply(`⚠️ An error occurred while checking online status.`);
             }
         };
 
-        const detectionInterval = setInterval(sendResults, checkInterval);
+        const interval = setInterval(checkOnline, checkInterval);
 
-        // Safety timeout
+        // Set timeout to clean up if something goes wrong
         setTimeout(() => {
-            clearInterval(detectionInterval);
+            clearInterval(interval);
             conn.ev.off('presence.update', presenceHandler);
-        }, checkInterval * detectionChecks + 10000);
+        }, checkInterval * checks + 10000); // Extra 10 seconds buffer
 
-    } catch (error) {
-        console.error("Command Error:", error);
-        reply(`❌ Command failed: ${error.message}`);
+    } catch (e) {
+        console.error("Error in online command:", e);
+        reply(`❌ An error occurred: ${e.message}`);
     }
 });
