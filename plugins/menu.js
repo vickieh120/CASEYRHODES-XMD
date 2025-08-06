@@ -1,108 +1,57 @@
 const config = require('../config');
-const { cmd, commands } = require('../command');
+const { cmd } = require('../command');
 const fs = require('fs');
 const path = require('path');
 
-// Improved random image selector with caching
-let cachedImages = [];
-const getRandomImage = () => {
-    try {
-        if (cachedImages.length === 0) {
-            const srcPath = path.join(__dirname, '../src');
-            const files = fs.readdirSync(srcPath);
-            cachedImages = files.filter(file => 
-                /\.(jpg|png|jpeg)$/i.test(file)
-            ).map(file => path.join(srcPath, file));
-            
-            if (cachedImages.length === 0) {
-                console.log('No local images found, using default');
-                return 'https://files.catbox.moe/wklbg4.jpg';
-            }
-        }
-        return cachedImages[Math.floor(Math.random() * cachedImages.length)];
-    } catch (e) {
-        console.log('Image error:', e);
-        return 'https://files.catbox.moe/wklbg4.jpg';
-    }
+// ==============================
+// IMPROVED BUTTON IMPLEMENTATION
+// ==============================
+
+const createButtons = (buttons, text, footer = config.BOTNAME) => {
+    return {
+        text: text,
+        footer: footer,
+        buttons: buttons,
+        headerType: 1
+    };
 };
 
-// Audio URLs with better quality options
-const audioUrls = [
-    'https://files.catbox.moe/m0xfku.mp3',  // High quality menu audio
-    'https://files.catbox.moe/3au05j.m4a',  // Better formatted audio
-    'https://files.catbox.moe/dcxfi1.mp3',  // Clear audio
-    'https://files.catbox.moe/ebkzu5.mp3'   // Premium quality
-];
-
-// Button definitions with better structure
-const buttonSections = {
-    mainMenu: [
-        { buttonId: `${config.PREFIX}owner`, buttonText: { displayText: '👑 Owner Menu' }, type: 1 },
-        { buttonId: `${config.PREFIX}listcmd`, buttonText: { displayText: '📜 All Commands' }, type: 1 },
-        { buttonId: `${config.PREFIX}donate`, buttonText: { displayText: '💸 Donate' }, type: 1 }
-    ],
-    ownerMenu: [
-        { buttonId: `${config.PREFIX}contactowner`, buttonText: { displayText: '📱 Contact Owner' }, type: 1 },
-        { buttonId: `${config.PREFIX}officialgc`, buttonText: { displayText: '👥 Official Group' }, type: 1 },
-        { buttonId: `${config.PREFIX}back`, buttonText: { displayText: '🔙 Main Menu' }, type: 1 }
-    ]
+const buttonTemplates = {
+    mainMenu: () => createButtons(
+        [
+            { buttonId: `${config.PREFIX}owner`, buttonText: { displayText: '👑 Owner' }, type: 1 },
+            { buttonId: `${config.PREFIX}listcmd`, buttonText: { displayText: '📜 Commands' }, type: 1 },
+            { buttonId: `${config.PREFIX}donate`, buttonText: { displayText: '💸 Donate' }, type: 1 }
+        ],
+        `🌟 *${config.BOTNAME} Menu* 🌟\nSelect an option below:`
+    ),
+    
+    ownerMenu: () => createButtons(
+        [
+            { buttonId: `${config.PREFIX}contactowner`, buttonText: { displayText: '📱 Contact' }, type: 1 },
+            { buttonId: `${config.PREFIX}officialgc`, buttonText: { displayText: '👥 Group' }, type: 1 },
+            { buttonId: `${config.PREFIX}menu`, buttonText: { displayText: '🔙 Back' }, type: 1 }
+        ],
+        '👑 *Owner Information Menu*'
+    )
 };
+
+// ==============================
+// COMMAND IMPLEMENTATIONS
+// ==============================
 
 cmd({
     pattern: "menu",
-    desc: "Show main menu",
+    desc: "Main menu with buttons",
     category: "general",
     react: "📜",
     filename: __filename
-}, async (conn, mek, m, { from, pushname, reply }) => {
+}, async (Void, mek, m, { from }) => {
     try {
-        const uptime = process.uptime();
-        const hours = Math.floor(uptime / 3600);
-        const minutes = Math.floor((uptime % 3600) / 60);
-        
-        const menuText = `🌟 *${config.HEADER}* 🌟
-
-╭───「 User Info 」
-│ 👤 Name: ${pushname}
-│ ⚡ Prefix: ${config.PREFIX}
-│ 🕒 Uptime: ${hours}h ${minutes}m
-╰─────────────────
-
-╭───「 Bot Info 」
-│ 🤖 Name: ${config.BOTNAME}
-│ 📦 Commands: ${commands.length}
-│ 🚀 Version: ${config.VERSION}
-╰─────────────────
-
-╭───「 Menu Sections 」
-│ 📚 Main Menu
-│ 🛠️ Tools Menu
-│ 🎉 Fun Menu
-│ 🖼️ Media Menu
-│ ⚙️ Owner Menu
-╰─────────────────
-
-${config.FOOTER}`;
-
-        await conn.sendMessage(from, {
-            image: { url: getRandomImage() },
-            caption: menuText,
-            footer: config.BOTNAME,
-            buttons: buttonSections.mainMenu,
-            headerType: 4
-        }, { quoted: m });
-
-        // Send high quality audio
-        const audioUrl = audioUrls[Math.floor(Math.random() * audioUrls.length)];
-        await conn.sendMessage(from, {
-            audio: { url: audioUrl },
-            mimetype: 'audio/mpeg',
-            ptt: false
-        }, { quoted: m });
-
-    } catch (error) {
-        console.error('Menu error:', error);
-        await reply('❌ Failed to load menu. Please try again later.');
+        await Void.sendMessage(from, buttonTemplates.mainMenu(), { quoted: m });
+    } catch (e) {
+        console.error("Menu error:", e);
+        await Void.sendMessage(from, { text: "🚨 Failed to load menu. Please try again." }, { quoted: m });
     }
 });
 
@@ -111,17 +60,12 @@ cmd({
     desc: "Owner information menu",
     category: "info",
     react: "👑"
-}, async (conn, mek, m, { from, reply }) => {
+}, async (Void, mek, m, { from }) => {
     try {
-        await conn.sendMessage(from, {
-            text: '👑 *Owner Information* 👑\n\nSelect an option below:',
-            buttons: buttonSections.ownerMenu,
-            footer: config.BOTNAME,
-            headerType: 1
-        }, { quoted: m });
-    } catch (error) {
-        console.error('Owner menu error:', error);
-        await reply('❌ Failed to load owner menu.');
+        await Void.sendMessage(from, buttonTemplates.ownerMenu(), { quoted: m });
+    } catch (e) {
+        console.error("Owner menu error:", e);
+        await Void.sendMessage(from, { text: "🚨 Failed to load owner menu." }, { quoted: m });
     }
 });
 
@@ -130,46 +74,72 @@ cmd({
     desc: "Contact the bot owner",
     category: "info",
     react: "📱"
-}, async (conn, mek, m, { from, reply }) => {
+}, async (Void, mek, m, { from }) => {
     try {
-        await conn.sendMessage(from, {
+        await Void.sendMessage(from, { 
             contacts: {
-                displayName: "Bot Owner",
-                contacts: [{
-                    vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:${config.OWNER_NAME}\nTEL:${config.OWNER_NUMBER}\nEND:VCARD`
+                displayName: config.OWNER_NAME,
+                contacts: [{ 
+                    vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:${config.OWNER_NAME}\nTEL:${config.OWNER_NUMBER}\nEND:VCARD` 
                 }]
             }
         }, { quoted: m });
-    } catch (error) {
-        console.error('Contact error:', error);
-        await reply('❌ Failed to send contact.');
+    } catch (e) {
+        console.error("Contact error:", e);
+        await Void.sendMessage(from, { text: "🚨 Failed to send contact." }, { quoted: m });
     }
 });
 
-// Additional button handlers
-cmd({
-    pattern: "listcmd",
-    desc: "List all commands",
-    category: "general",
-    react: "📜"
-}, async (conn, mek, m, { reply }) => {
-    // Command list implementation
-});
+// ==============================
+// BUTTON COMMAND HANDLERS
+// ==============================
 
 cmd({
-    pattern: "donate",
-    desc: "Donation information",
-    category: "info",
-    react: "💸"
-}, async (conn, mek, m, { reply }) => {
-    // Donation implementation
+    on: "button",
+    fromMe: false
+}, async (Void, mek, m, data) => {
+    try {
+        const buttonId = m.message.buttonsResponseMessage.selectedButtonId;
+        const sender = m.key.remoteJid;
+
+        switch(buttonId) {
+            case `${config.PREFIX}owner`:
+                await Void.sendMessage(sender, buttonTemplates.ownerMenu());
+                break;
+                
+            case `${config.PREFIX}menu`:
+                await Void.sendMessage(sender, buttonTemplates.mainMenu());
+                break;
+                
+            case `${config.PREFIX}contactowner`:
+                await Void.sendMessage(sender, { 
+                    contacts: {
+                        displayName: config.OWNER_NAME,
+                        contacts: [{ 
+                            vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:${config.OWNER_NAME}\nTEL:${config.OWNER_NUMBER}\nEND:VCARD` 
+                        }]
+                    }
+                });
+                break;
+                
+            default:
+                await Void.sendMessage(sender, { text: "⚠️ Unknown button selection" });
+        }
+    } catch (e) {
+        console.error("Button handler error:", e);
+    }
 });
 
-cmd({
-    pattern: "back",
-    desc: "Return to main menu",
-    category: "general",
-    react: "🔙"
-}, async (conn, mek, m, { reply }) => {
-    // Back to menu implementation
-});
+// ==============================
+// REQUIRED CONFIG.JS SETTINGS
+// ==============================
+/*
+Ensure your config.js has these:
+module.exports = {
+    BOTNAME: "YourBotName",
+    OWNER_NAME: "OwnerName",
+    OWNER_NUMBER: "1234567890",
+    PREFIX: "."
+    // ... other configs
+};
+*/
