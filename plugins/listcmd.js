@@ -25,7 +25,7 @@ cmd({
       if (matches) {
         const extracted = matches.map(x => x.split(':')[1].replace(/["'`,]/g, '').trim());
         totalCommands += extracted.length;
-        commandList.push(`📁 *${file}*\n${extracted.map(cmd => `╰➤ \`${prefix}${cmd}\``).join('\n')}`);
+        commandList.push(`📁 *${file}*\n${extracted.map(cmd => `⦿ ${cmd}`).join('\n')}`);
       }
     }
 
