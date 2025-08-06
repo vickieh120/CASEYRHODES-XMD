@@ -36,30 +36,3 @@ async (conn, mek, m, { from, isOwner, reply }) => {
     }
 });
 
-cmd({
-    pattern: "setonline",
-    desc: "Update Online Privacy",
-    category: "privacy",
-    react: "🔐",
-    filename: __filename
-}, 
-async (conn, mek, m, { from, l, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
-    if (!isOwner) return reply("❌ You are not the owner!");
-
-    try {
-        const value = args[0] || 'all'; 
-        const validValues = ['all', 'match_last_seen'];
-        
-        if (!validValues.includes(value)) {
-            return reply("❌ Invalid option. Valid options are: 'all', 'match_last_seen'.");
-        }
-
-        await conn.updateOnlinePrivacy(value);
-        reply(`✅ Online privacy updated to: ${value}`);
-    } catch (e) {
-        return reply(`*An error occurred while processing your request.*\n\n_Error:_ ${e.message}`);
-    }
-});
-
-
-                             
