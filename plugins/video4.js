@@ -4,7 +4,7 @@ const axios = require('axios');
 
 // YouTube video downloader command
 cmd({
-  'pattern': 'video5',
+  'pattern': 'video78',
   'react': '🎬',
   'desc': "Download video from YouTube by searching for keywords.",
   'category': "media",
