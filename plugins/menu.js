@@ -1,155 +1,159 @@
-const { cmd } = require('../command');
-const config = require('../config');
+import { Boom } from '@hapi/boom'
+import { makeInMemoryStore, useMultiFileAuthState, DisconnectReason } from '@whiskeysockets/baileys'
+import { COMMANDS, PREFIX } from '../config.js'
 
-// Helper function to create button messages
-const createButtonMessage = (text, buttons, footer = config.BOTNAME) => {
-    return {
-        text: text,
-        footer: footer,
-        buttons: buttons,
-        headerType: 1
-    };
-};
+// Initialize store for messages
+const store = makeInMemoryStore({ logger: console })
+store?.readFromFile('./baileys_store.json')
+setInterval(() => store.writeToFile('./baileys_store.json'), 10_000)
 
-// Button templates
-const menuButtons = [
-    { buttonId: `${config.PREFIX}owner`, buttonText: { displayText: '👑 Owner' }, type: 1 },
-    { buttonId: `${config.PREFIX}listcmd`, buttonText: { displayText: '📜 Commands' }, type: 1 },
-    { buttonId: `${config.PREFIX}donate`, buttonText: { displayText: '💸 Donate' }, type: 1 }
-];
+// Connection handler with proper types
+async function startSock() {
+  const { state, saveCreds } = await useMultiFileAuthState('baileys_auth_info')
+  
+  const sock = makeWASocket({
+    logger: console,
+    printQRInTerminal: true,
+    auth: state,
+    getMessage: async (key) => {
+      return store.loadMessage(key.remoteJid, key.id) || {}
+    }
+  })
 
-const ownerButtons = [
-    { buttonId: `${config.PREFIX}contactowner`, buttonText: { displayText: '📱 Contact' }, type: 1 },
-    { buttonId: `${config.PREFIX}officialgc`, buttonText: { displayText: '👥 Group' }, type: 1 },
-    { buttonId: `${config.PREFIX}menu`, buttonText: { displayText: '🔙 Back' }, type: 1 }
-];
+  store.bind(sock.ev)
 
-// Main menu command
-cmd({
-    pattern: "menu",
-    desc: "Show main menu",
-    category: "general",
-    react: "📜",
-    filename: __filename
-}, async (Void, mek, m, { from }) => {
+  // Handle connection updates
+  sock.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect } = update
+    if (connection === 'close') {
+      const shouldReconnect = (lastDisconnect.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut
+      console.log('connection closed due to ', lastDisconnect.error, ', reconnecting ', shouldReconnect)
+      if (shouldReconnect) {
+        startSock()
+      }
+    } else if (connection === 'open') {
+      console.log('opened connection')
+    }
+  })
+
+  // Handle message events
+  sock.ev.on('messages.upsert', async ({ messages }) => {
+    const m = messages[0]
+    if (!m.message || m.key.fromMe) return
+
+    const text = (m.message.conversation || m.message.extendedTextMessage?.text || '').toLowerCase()
+    const sender = m.key.remoteJid
+    const pushName = m.pushName || 'User'
+
     try {
-        const menuText = `🌟 *${config.BOTNAME} Menu* 🌟\n\n` +
-                        `Welcome to ${config.BOTNAME}! Here's what I can do:\n\n` +
-                        `• Use buttons below to navigate\n` +
-                        `• Prefix: ${config.PREFIX}\n` +
-                        `• Owner: ${config.OWNER_NAME}`;
+      // Handle button responses
+      if (m.message.buttonsResponseMessage) {
+        const buttonId = m.message.buttonsResponseMessage.selectedButtonId
+        await handleButtonResponse(sock, sender, buttonId, pushName)
+        return
+      }
+
+      // Handle regular commands
+      if (text.startsWith(PREFIX)) {
+        const cmd = text.replace(PREFIX, '').split(' ')[0]
+        const args = text.split(' ').slice(1)
         
-        await Void.sendMessage(from, 
-            createButtonMessage(menuText, menuButtons),
-            { quoted: m }
-        );
-    } catch (e) {
-        console.error("Menu command error:", e);
-        await Void.sendMessage(from, 
-            { text: "❌ Failed to load menu. Please try again later." },
-            { quoted: m }
-        );
+        await handleCommand(sock, m, cmd, args, pushName)
+      }
+    } catch (error) {
+      console.error('Message processing error:', error)
+      await sock.sendMessage(sender, { text: '❌ An error occurred while processing your request' })
     }
-});
+  })
 
-// Owner menu command
-cmd({
-    pattern: "owner",
-    desc: "Owner information",
-    category: "info",
-    react: "👑"
-}, async (Void, mek, m, { from }) => {
-    try {
-        const ownerText = `👑 *Owner Information* 👑\n\n` +
-                         `Name: ${config.OWNER_NAME}\n` +
-                         `Contact: ${config.OWNER_NUMBER}\n\n` +
-                         `Use buttons below:`;
-        
-        await Void.sendMessage(from, 
-            createButtonMessage(ownerText, ownerButtons),
-            { quoted: m }
-        );
-    } catch (e) {
-        console.error("Owner command error:", e);
-        await Void.sendMessage(from, 
-            { text: "❌ Failed to load owner info." },
-            { quoted: m }
-        );
+  return sock
+}
+
+// Command handler
+async function handleCommand(sock, m, cmd, args, pushName) {
+  const sender = m.key.remoteJid
+  
+  switch(cmd) {
+    case 'menu':
+      await showMainMenu(sock, sender, pushName)
+      break
+      
+    case 'owner':
+      await showOwnerMenu(sock, sender)
+      break
+      
+    case 'contactowner':
+      await sendOwnerContact(sock, sender)
+      break
+      
+    default:
+      await sock.sendMessage(sender, { text: '⚠️ Unknown command. Type .menu for options' })
+  }
+}
+
+// Button response handler
+async function handleButtonResponse(sock, sender, buttonId, pushName) {
+  switch(buttonId) {
+    case 'menu':
+      await showMainMenu(sock, sender, pushName)
+      break
+      
+    case 'owner':
+      await showOwnerMenu(sock, sender)
+      break
+      
+    case 'contactowner':
+      await sendOwnerContact(sock, sender)
+      break
+      
+    default:
+      await sock.sendMessage(sender, { text: '⚠️ Unknown button selection' })
+  }
+}
+
+// Menu templates
+async function showMainMenu(sock, sender, pushName) {
+  const menuText = `🌟 *Main Menu* 🌟\n\n` +
+                  `Hello ${pushName}! I'm ${COMMANDS.botName}.\n` +
+                  `Here's what I can do:\n\n` +
+                  `• Prefix: ${PREFIX}\n` +
+                  `• Commands: ${Object.keys(COMMANDS).length}\n` +
+                  `• Owner: ${COMMANDS.ownerName}`
+
+  await sock.sendMessage(sender, {
+    text: menuText,
+    footer: 'Select an option below',
+    buttons: [
+      { buttonId: 'menu', buttonText: { displayText: '🏠 Main Menu' }, type: 1 },
+      { buttonId: 'owner', buttonText: { displayText: '👑 Owner' }, type: 1 },
+      { buttonId: 'contactowner', buttonText: { displayText: '📱 Contact' }, type: 1 }
+    ],
+    headerType: 1
+  })
+}
+
+async function showOwnerMenu(sock, sender) {
+  await sock.sendMessage(sender, {
+    text: '👑 *Owner Information* 👑\n\nSelect an option:',
+    footer: COMMANDS.botName,
+    buttons: [
+      { buttonId: 'contactowner', buttonText: { displayText: '📱 Contact Owner' }, type: 1 },
+      { buttonId: 'menu', buttonText: { displayText: '🔙 Main Menu' }, type: 1 }
+    ],
+    headerType: 1
+  })
+}
+
+async function sendOwnerContact(sock, sender) {
+  await sock.sendMessage(sender, {
+    contacts: {
+      displayName: COMMANDS.ownerName,
+      contacts: [{
+        vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:${COMMANDS.ownerName}\nTEL:${COMMANDS.ownerNumber}\nEND:VCARD`
+      }]
     }
-});
+  })
+}
 
-// Contact owner command
-cmd({
-    pattern: "contactowner",
-    desc: "Contact the bot owner",
-    category: "info",
-    react: "📱"
-}, async (Void, mek, m, { from }) => {
-    try {
-        await Void.sendMessage(from, {
-            contacts: {
-                displayName: config.OWNER_NAME,
-                contacts: [{
-                    vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:${config.OWNER_NAME}\nTEL:${config.OWNER_NUMBER}\nEND:VCARD`
-                }]
-            }
-        }, { quoted: m });
-    } catch (e) {
-        console.error("Contact command error:", e);
-        await Void.sendMessage(from, 
-            { text: "❌ Failed to send contact." },
-            { quoted: m }
-        );
-    }
-});
-
-// Button handler
-cmd({
-    on: "button",
-    fromMe: false
-}, async (Void, mek, m) => {
-    try {
-        const buttonId = m.message.buttonsResponseMessage?.selectedButtonId;
-        const sender = m.key.remoteJid;
-
-        if (!buttonId) return;
-
-        switch(buttonId) {
-            case `${config.PREFIX}owner`:
-                await Void.sendMessage(sender, 
-                    createButtonMessage(
-                        `👑 *Owner Information* 👑\n\nSelect an option:`,
-                        ownerButtons
-                    )
-                );
-                break;
-
-            case `${config.PREFIX}menu`:
-                await Void.sendMessage(sender, 
-                    createButtonMessage(
-                        `🌟 *${config.BOTNAME} Main Menu* 🌟\n\nSelect an option:`,
-                        menuButtons
-                    )
-                );
-                break;
-
-            case `${config.PREFIX}contactowner`:
-                await Void.sendMessage(sender, {
-                    contacts: {
-                        displayName: config.OWNER_NAME,
-                        contacts: [{
-                            vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:${config.OWNER_NAME}\nTEL:${config.OWNER_NUMBER}\nEND:VCARD`
-                        }]
-                    }
-                });
-                break;
-
-            default:
-                await Void.sendMessage(sender, 
-                    { text: "⚠️ Unknown button selection" }
-                );
-        }
-    } catch (e) {
-        console.error("Button handler error:", e);
-    }
-});
+// Start the connection
+startSock().catch(err => console.error('Initialization error:', err))
