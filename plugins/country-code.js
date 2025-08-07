@@ -1,7 +1,6 @@
 const axios = require("axios");
 const { cmd } = require("../command");
 
-// Helper function to convert a country ISO code to its flag emoji
 function getFlagEmoji(countryCode) {
   if (!countryCode) return "";
   return countryCode
@@ -12,39 +11,44 @@ function getFlagEmoji(countryCode) {
 }
 
 cmd({
-    pattern: "check",
-    desc: "Checks the country calling code and returns the corresponding country name(s) with flag",
-    category: "utility",
-    filename: __filename
+  pattern: "check",
+  desc: "Checks the country calling code and returns the corresponding country name(s) with flag",
+  category: "utility",
+  filename: __filename
 }, async (conn, mek, m, { from, args, reply }) => {
-    try {
-        let code = args[0];
-        if (!code) {
-            return reply("❌ Please provide a country code. Example: `.check 254`");
+  try {
+    let code = args[0];
+    if (!code) return reply("❌ Please provide a country code. Example: `.check 255`");
+    code = code.replace(/\+/g, '');
+
+    const url = "https://country-code-1-hmla.onrender.com/countries"; // API yako
+    const { data } = await axios.get(url);
+
+    const matchingCountries = data.filter(country => country.calling_code === code);
+
+    if (matchingCountries.length > 0) {
+      const countryNames = matchingCountries
+        .map(c => `${getFlagEmoji(c.code)} ${c.name}`)
+        .join("\n");
+
+      await conn.sendMessage(from, {
+        text: `✅ *Country Code:* ${code}\n🌍 *Countries:*\n${countryNames}`,
+        contextInfo: {
+          mentionedJid: [m.sender],
+          forwardingScore: 999,
+          isForwarded: true,
+          forwardedNewsletterMessageInfo: {
+            newsletterJid: "120363302677217436@newsletter",
+            newsletterName: "CASEYRHODES-XMD",
+            serverMessageId: 1
+          }
         }
-
-        // Remove any '+' signs from the code
-        code = code.replace(/\+/g, '');
-
-        // Fetch all countries using the REST Countries v2 API
-        const url = "https://restcountries.com/v2/all";
-        const { data } = await axios.get(url);
-
-        // Filter countries whose callingCodes include the given code
-        const matchingCountries = data.filter(country =>
-            country.callingCodes && country.callingCodes.includes(code)
-        );
-
-        if (matchingCountries.length > 0) {
-            const countryNames = matchingCountries
-                .map(country => `${getFlagEmoji(country.alpha2Code)} ${country.name}`)
-                .join("\n");
-            reply(`✅ *Country Code*: ${code}\n🌍 *Countries*:\n${countryNames}`);
-        } else {
-            reply(`❌ No country found for the code ${code}.`);
-        }
-    } catch (error) {
-        console.error(error);
-        reply("❌ An error occurred while checking the country code.");
+      }, { quoted: mek });
+    } else {
+      reply(`❌ No country found for the code ${code}.`);
     }
+  } catch (error) {
+    console.error(error);
+    reply("❌ An error occurred while checking the country code.");
+  }
 });
