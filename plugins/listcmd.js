@@ -25,7 +25,7 @@ cmd({
       if (matches) {
         const extracted = matches.map(x => x.split(':')[1].replace(/["'`,]/g, '').trim());
         totalCommands += extracted.length;
-        commandList.push(`📁 *${file}*\n${extracted.map(cmd => `╰➤ \`${prefix}${cmd}\``).join('\n')}`);
+        commandList.push(`📁 *${file}*\n${extracted.map(cmd => `⦿ ${cmd}`).join('\n')}`);
       }
     }
 
@@ -47,33 +47,17 @@ cmd({
         isForwarded: true,
         mentionedJid: [m.sender],
         forwardedNewsletterMessageInfo: {
-          newsletterJid:"120363302677217436@newsletter",
+          newsletterJid: "120363302677217436@newsletter",
           newsletterName: "CASEYRHODES TECH",
           serverMessageId: 2
         },
         externalAdReply: {
           title: "CASEYRHODES TECH",
           body: `ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴄᴀsᴇʏʀʜᴏᴅᴇs ᴛᴇᴄʜ`,
-          mediaType: 1,
-          sourceUrl: "https://github.com/caseyweb/CASEYRHODES-XMD",
-          renderLargerThumbnail: false,
-          showAdAttribution: true
+          mediaType: 1
         }
       }
-    }, { quoted: {
-      key: {
-        fromMe: false,
-        participant: '0@s.whatsapp.net',
-        remoteJid: 'status@broadcast'
-      },
-      message: {
-        contactMessage: {
-          displayName: "CASEYRHODES-XMD | Powered by Caseyrhodes ✅",
-          vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:CASEYRHODES TECH | Pkdriller\nORG: Caseyrhodes ✅;\nTEL;type=CELL;type=VOICE;waid=254112192119:+254 112 192119\nEND:VCARD`,
-          jpegThumbnail: Buffer.alloc(0)
-        }
-      }
-    }});
+    }, { quoted: m });
   } catch (err) {
     console.error(err);
     await m.reply('❌ Error: Could not fetch the command list.');

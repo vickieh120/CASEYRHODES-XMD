@@ -1,5 +1,3 @@
-// code by ⿻ Caseyrhodes-Tech
-
 const axios = require("axios");
 const { cmd } = require("../command");
 const { sleep } = require('../lib/functions');
@@ -12,11 +10,25 @@ cmd({
   category: "main",
   use: ".screenshot <url>",
   filename: __filename,
-}, async (conn, mek, msg, { from, args, reply }) => {
+}, async (conn, mek, msg, { from, args, reply, sender }) => {
   try {
     const url = args[0];
     if (!url) return reply("❌ Please provide a URL\nExample: .screenshot https://google.com");
     if (!url.startsWith("http")) return reply("❌ URL must start with http:// or https://");
+
+    // Newsletter configuration
+    const newsletterConfig = {
+      contextInfo: {
+        mentionedJid: [sender],
+        forwardingScore: 999,
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: '120363302677217436@newsletter',
+          newsletterName: 'CASEYRHODES TECH 🌟',
+          serverMessageId: 143
+        }
+      }
+    };
 
     // ASCII loading bars with percentage
     const loadingBars = [
@@ -34,7 +46,8 @@ cmd({
 
     // Send initial message
     const loadingMsg = await conn.sendMessage(from, {
-        text: "🔄 Starting screenshot capture...\n✦ Please wait..."
+        text: "🔄 Starting screenshot capture...\n✦ Please wait...",
+        ...newsletterConfig
     }, { quoted: mek });
 
     // Animate loading progress
@@ -65,17 +78,26 @@ cmd({
 
     await sleep(1000);
 
-    // Send the actual screenshot
+    // Send the actual screenshot with newsletter context
     await conn.sendMessage(from, {
-        image: { url: `https://image.thum.io/get/fullpage/${url}` },
-        caption: "- 🖼️ *Screenshot Generated*\n\n" +
-                "> ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴄᴀsᴇʏʀʜᴏᴅᴇs ᴛᴇᴄʜ 💜"
+        image: { 
+          url: `https://image.thum.io/get/fullpage/${url}`,
+          mimetype: "image/jpeg"
+        },
+        caption: "🖼️ *Screenshot Generated*\n\n" +
+                "🔗 *Website:* " + url + "\n\n" +
+                "⚡ *Powered by CASEYRHODES-TECH*",
+        ...newsletterConfig
+    }, { quoted: mek });
+
+    // Send newsletter update message (without image)
+    await conn.sendMessage(from, { 
+        text: "🌟 *CASEYRHODES TECH UPDATE* 🌟\n\nStay updated with our latest features!",
+        ...newsletterConfig
     }, { quoted: mek });
 
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Screenshot Error:", error);
     reply("❌ Failed to capture screenshot\n✦ Please try again later");
   }
 });
-
-// KEITH-XMD

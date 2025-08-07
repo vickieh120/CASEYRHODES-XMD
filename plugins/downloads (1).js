@@ -6,6 +6,28 @@ const { igdl } = require("ruhend-scraper");
 const axios = require("axios");
 const { cmd, commands } = require('../command');
 
+// Newsletter configuration
+const newsletterConfig = {
+  newsletterJid: '120363302677217436@newsletter',
+  newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐓𝐄𝐂𝐇',
+  serverMessageId: 143
+};
+
+const addNewsletterContext = (messageOptions) => {
+  return {
+    ...messageOptions,
+    contextInfo: {
+      forwardingScore: 999,
+      isForwarded: true,
+      forwardedNewsletterMessageInfo: {
+        newsletterJid: newsletterConfig.newsletterJid,
+        newsletterName: newsletterConfig.newsletterName,
+        serverMessageId: newsletterConfig.serverMessageId
+      }
+    }
+  };
+};
+
 cmd({
   pattern: "ig",
   alias: ["insta", "Instagram"],
@@ -23,27 +45,29 @@ cmd({
       react: { text: "⏳", key: m.key }
     });
 
-    const response = await axios.get(`https://api.davidcyriltech.my.id/instagram?url=${q}`);
+    const response = await axios.get(`https://api.giftedtech.co.ke/api/download/instadl?apikey=gifted&url=${q}`);
     const data = response.data;
 
     if (!data || data.status !== 200 || !data.downloadUrl) {
       return reply("⚠️ Failed to fetch Instagram video. Please check the link and try again.");
     }
 
-    await conn.sendMessage(from, {
+    const messageOptions = addNewsletterContext({
       video: { url: data.downloadUrl },
       mimetype: "video/mp4",
-      caption: "📥 *Instagram Video Downloaded Successfully!*"
-    }, { quoted: m });
+      caption: "📥 *Instagram Video Downloaded Successfully!*\n\n🔗 *Powered By Caseyrhodes tech*"
+    });
+
+    await conn.sendMessage(from, messageOptions, { quoted: m });
 
   } catch (error) {
     console.error("Error:", error);
-    reply("❌ An error occurred while processing your request. Please try again.");
+    const errorMessage = addNewsletterContext({
+      text: "❌ An error occurred while processing your request. Please try again."
+    });
+    reply(errorMessage);
   }
 });
-
-
-// twitter-dl
 
 cmd({
   pattern: "twitter",
@@ -51,15 +75,13 @@ cmd({
   desc: "Download Twitter videos",
   category: "download",
   filename: __filename
-}, async (conn, m, store, {
-  from,
-  quoted,
-  q,
-  reply
-}) => {
+}, async (conn, m, store, { from, quoted, q, reply }) => {
   try {
     if (!q || !q.startsWith("https://")) {
-      return conn.sendMessage(from, { text: "❌ Please provide a valid Twitter URL." }, { quoted: m });
+      const errorMessage = addNewsletterContext({
+        text: "❌ Please provide a valid Twitter URL."
+      });
+      return conn.sendMessage(from, errorMessage, { quoted: m });
     }
 
     await conn.sendMessage(from, {
@@ -70,7 +92,10 @@ cmd({
     const data = response.data;
 
     if (!data || !data.status || !data.result) {
-      return reply("⚠️ Failed to retrieve Twitter video. Please check the link and try again.");
+      const errorMessage = addNewsletterContext({
+        text: "⚠️ Failed to retrieve Twitter video. Please check the link and try again."
+      });
+      return reply(errorMessage);
     }
 
     const { desc, thumb, video_sd, video_hd } = data.result;
@@ -85,13 +110,15 @@ cmd({
       + `3️⃣  *Audio*\n`
       + `4️⃣  *Document*\n`
       + `5️⃣  *Voice*\n\n`
-      + `📌 *Reply with the number to download your choice.*`;
+      + `📌 *Reply with the number to download your choice.*\n\n`
+      + `🔗 *Powered By Caseyrhodes tech*`;
 
-    const sentMsg = await conn.sendMessage(from, {
+    const messageOptions = addNewsletterContext({
       image: { url: thumb },
       caption: caption
-    }, { quoted: m });
+    });
 
+    const sentMsg = await conn.sendMessage(from, messageOptions, { quoted: m });
     const messageID = sentMsg.key.id;
 
     conn.ev.on("messages.upsert", async (msgData) => {
@@ -107,58 +134,64 @@ cmd({
           react: { text: '⬇️', key: receivedMsg.key }
         });
 
+        let responseMessage;
         switch (receivedText) {
           case "1":
-            await conn.sendMessage(senderID, {
+            responseMessage = addNewsletterContext({
               video: { url: video_sd },
-              caption: "📥 *Downloaded in SD Quality*"
-            }, { quoted: receivedMsg });
+              caption: "📥 *Downloaded in SD Quality*\n\n🔗 *Powered By Caseyrhodes tech*"
+            });
             break;
 
           case "2":
-            await conn.sendMessage(senderID, {
+            responseMessage = addNewsletterContext({
               video: { url: video_hd },
-              caption: "📥 *Downloaded in HD Quality*"
-            }, { quoted: receivedMsg });
+              caption: "📥 *Downloaded in HD Quality*\n\n🔗 *Powered By Caseyrhodes tech*"
+            });
             break;
 
           case "3":
-            await conn.sendMessage(senderID, {
+            responseMessage = addNewsletterContext({
               audio: { url: video_sd },
               mimetype: "audio/mpeg"
-            }, { quoted: receivedMsg });
+            });
             break;
 
           case "4":
-            await conn.sendMessage(senderID, {
+            responseMessage = addNewsletterContext({
               document: { url: video_sd },
               mimetype: "audio/mpeg",
               fileName: "Twitter_Audio.mp3",
-              caption: "📥 *Audio Downloaded as Document*"
-            }, { quoted: receivedMsg });
+              caption: "📥 *Audio Downloaded as Document*\n\n🔗 *Powered By Caseyrhodes tech*"
+            });
             break;
 
           case "5":
-            await conn.sendMessage(senderID, {
+            responseMessage = addNewsletterContext({
               audio: { url: video_sd },
               mimetype: "audio/mp4",
               ptt: true
-            }, { quoted: receivedMsg });
+            });
             break;
 
           default:
-            reply("❌ Invalid option! Please reply with 1, 2, 3, 4, or 5.");
+            responseMessage = addNewsletterContext({
+              text: "❌ Invalid option! Please reply with 1, 2, 3, 4, or 5."
+            });
         }
+
+        await conn.sendMessage(senderID, responseMessage, { quoted: receivedMsg });
       }
     });
 
   } catch (error) {
     console.error("Error:", error);
-    reply("❌ An error occurred while processing your request. Please try again.");
+    const errorMessage = addNewsletterContext({
+      text: "❌ An error occurred while processing your request. Please try again."
+    });
+    reply(errorMessage);
   }
 });
-
-// MediaFire-dl
 
 cmd({
   pattern: "mediafire",
@@ -167,15 +200,13 @@ cmd({
   react: "🎥",
   category: "download",
   filename: __filename
-}, async (conn, m, store, {
-  from,
-  quoted,
-  q,
-  reply
-}) => {
+}, async (conn, m, store, { from, quoted, q, reply }) => {
   try {
     if (!q) {
-      return reply("❌ Please provide a valid MediaFire link.");
+      const errorMessage = addNewsletterContext({
+        text: "❌ Please provide a valid MediaFire link."
+      });
+      return reply(errorMessage);
     }
 
     await conn.sendMessage(from, {
@@ -186,7 +217,10 @@ cmd({
     const data = response.data;
 
     if (!data || !data.status || !data.result || !data.result.dl_link) {
-      return reply("⚠️ Failed to fetch MediaFire download link. Ensure the link is valid and public.");
+      const errorMessage = addNewsletterContext({
+        text: "⚠️ Failed to fetch MediaFire download link. Ensure the link is valid and public."
+      });
+      return reply(errorMessage);
     }
 
     const { dl_link, fileName, fileType } = data.result;
@@ -201,37 +235,39 @@ cmd({
       + `┃▸ *File Name:* ${file_name}\n`
       + `┃▸ *File Type:* ${mime_type}\n`
       + `╰━━━⪼\n\n`
-      + `📥 *Downloading your file...*`;
+      + `📥 *Downloading your file...*\n\n`
+      + `🔗 *Powered By Caseyrhodes tech*`;
 
-    await conn.sendMessage(from, {
+    const messageOptions = addNewsletterContext({
       document: { url: dl_link },
       mimetype: mime_type,
       fileName: file_name,
       caption: caption
-    }, { quoted: m });
+    });
+
+    await conn.sendMessage(from, messageOptions, { quoted: m });
 
   } catch (error) {
     console.error("Error:", error);
-    reply("❌ An error occurred while processing your request. Please try again.");
+    const errorMessage = addNewsletterContext({
+      text: "❌ An error occurred while processing your request. Please try again."
+    });
+    reply(errorMessage);
   }
 });
-
-// apk-dl
 
 cmd({
   pattern: "apk",
   desc: "Download APK from Aptoide.",
   category: "download",
   filename: __filename
-}, async (conn, m, store, {
-  from,
-  quoted,
-  q,
-  reply
-}) => {
+}, async (conn, m, store, { from, quoted, q, reply }) => {
   try {
     if (!q) {
-      return reply("❌ Please provide an app name to search.");
+      const errorMessage = addNewsletterContext({
+        text: "❌ Please provide an app name to search."
+      });
+      return reply(errorMessage);
     }
 
     await conn.sendMessage(from, { react: { text: "⏳", key: m.key } });
@@ -241,11 +277,14 @@ cmd({
     const data = response.data;
 
     if (!data || !data.datalist || !data.datalist.list.length) {
-      return reply("⚠️ No results found for the given app name.");
+      const errorMessage = addNewsletterContext({
+        text: "⚠️ No results found for the given app name."
+      });
+      return reply(errorMessage);
     }
 
     const app = data.datalist.list[0];
-    const appSize = (app.size / 1048576).toFixed(2); // Convert bytes to MB
+    const appSize = (app.size / 1048576).toFixed(2);
 
     const caption = `╭━━━〔 *APK Downloader* 〕━━━┈⊷
 ┃ 📦 *Name:* ${app.name}
@@ -258,22 +297,24 @@ cmd({
 
     await conn.sendMessage(from, { react: { text: "⬆️", key: m.key } });
 
-    await conn.sendMessage(from, {
+    const messageOptions = addNewsletterContext({
       document: { url: app.file.path_alt },
       fileName: `${app.name}.apk`,
       mimetype: "application/vnd.android.package-archive",
       caption: caption
-    }, { quoted: m });
+    });
 
+    await conn.sendMessage(from, messageOptions, { quoted: m });
     await conn.sendMessage(from, { react: { text: "✅", key: m.key } });
 
   } catch (error) {
     console.error("Error:", error);
-    reply("❌ An error occurred while fetching the APK. Please try again.");
+    const errorMessage = addNewsletterContext({
+      text: "❌ An error occurred while fetching the APK. Please try again."
+    });
+    reply(errorMessage);
   }
 });
-
-// G-Drive-DL
 
 cmd({
   pattern: "gdrive",
@@ -281,15 +322,13 @@ cmd({
   react: "🌐",
   category: "download",
   filename: __filename
-}, async (conn, m, store, {
-  from,
-  quoted,
-  q,
-  reply
-}) => {
+}, async (conn, m, store, { from, quoted, q, reply }) => {
   try {
     if (!q) {
-      return reply("❌ Please provide a valid Google Drive link.");
+      const errorMessage = addNewsletterContext({
+        text: "❌ Please provide a valid Google Drive link."
+      });
+      return reply(errorMessage);
     }
 
     await conn.sendMessage(from, { react: { text: "⬇️", key: m.key } });
@@ -301,19 +340,26 @@ cmd({
     if (downloadUrl) {
       await conn.sendMessage(from, { react: { text: "⬆️", key: m.key } });
 
-      await conn.sendMessage(from, {
+      const messageOptions = addNewsletterContext({
         document: { url: downloadUrl },
         mimetype: response.data.result.mimetype,
         fileName: response.data.result.fileName,
         caption: "*© Powered By Caseyrhodes tech*"
-      }, { quoted: m });
+      });
 
+      await conn.sendMessage(from, messageOptions, { quoted: m });
       await conn.sendMessage(from, { react: { text: "✅", key: m.key } });
     } else {
-      return reply("⚠️ No download URL found. Please check the link and try again.");
+      const errorMessage = addNewsletterContext({
+        text: "⚠️ No download URL found. Please check the link and try again."
+      });
+      return reply(errorMessage);
     }
   } catch (error) {
     console.error("Error:", error);
-    reply("❌ An error occurred while fetching the Google Drive file. Please try again.");
+    const errorMessage = addNewsletterContext({
+      text: "❌ An error occurred while fetching the Google Drive file. Please try again."
+    });
+    reply(errorMessage);
   }
-}); 
+});

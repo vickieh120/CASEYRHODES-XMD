@@ -53,7 +53,6 @@ reply(`${e}`)
 }
 });
 */
-
 const more = String.fromCharCode(8206)
 const readMore = more.repeat(4001)
 
@@ -114,6 +113,20 @@ ${readMore}
 ──────────────────
 \n> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴄᴀsᴇʏʀʜᴏᴅᴇs ᴛᴇᴄʜ* 🎐`;
 
+        const verifiedContact = {
+            key: {
+                fromMe: false,
+                participant: '0@s.whatsapp.net',
+                remoteJid: 'status@broadcast'
+            },
+            message: {
+                contactMessage: {
+                    displayName: "Caseyrhodes Verified✅",
+                    vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:Caseyrhodes Verified✅\nORG:CASEYRHODES TEAM;\nTEL;type=CELL;type=VOICE;waid=254701234567:+254701234567\nEND:VCARD`
+                }
+            }
+        };
+
         // Send an image with the formatted info as a caption and context info
         await conn.sendMessage(from, {
             image: { url: `https://files.catbox.moe/heu4tc.png` },
@@ -128,7 +141,7 @@ ${readMore}
                     serverMessageId: 143
                 }
             }
-        }, { quoted: mek });
+        }, { quoted: verifiedContact });
 
         // Send the audio file with context info
         await conn.sendMessage(from, {
@@ -145,7 +158,7 @@ ${readMore}
                     serverMessageId: 143
                 }
             }
-        }, { quoted: mek });
+        }, { quoted: verifiedContact });
 
     } catch (error) {
         console.error("Error in repo command:", error);

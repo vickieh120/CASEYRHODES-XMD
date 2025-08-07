@@ -25,7 +25,7 @@
 
 
 <p align="center">
-<a href="https://github.com/caseyweb"><img title="Author" src="https://files.catbox.moe/51dcx2.jpg?style=for-the-badge&logo=github"></a>
+<a href="https://github.com/caseyweb"><img title="Author" src="https://files.catbox.moe/y3j3kl.jpg?style=for-the-badge&logo=github"></a>
 
 
 
@@ -146,8 +146,8 @@ You will need a session ID to run CASEYRHODES-XMD. Click the button below to obt
 
 ## CASEYRHODES SUPPORT 
 
-<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Black+Ops+One&size=50&pause=1000&color=DAA520&center=true&width=910&height=100&lines=CASEYRHODES XMD +MAKE; STAR ⭐+AND+FORKS+BY+CASEYRHODES XMD" alt="Typing SVG" /></a>
-
+<a href="https://git.io/typing-svg"><img src="https://readme-typing-svg.demolab.com?font=Black+Ops+One&size=100&pause=1000&color=FF0000&center=true&width=1000&height=200&lines=CASEYRHODES TECH" alt="Typing SVG" /></a>
+  </p>
 
 
 ## 𝑺𝑼𝑷𝑷𝑶𝑹𝑻 𝑩𝒀 𝑭𝑶𝑳𝑳𝑶𝑾𝑰𝑵𝑮 𝐎𝐔𝐑 𝑾𝑯𝑨𝑻𝑺𝑨𝑷𝑷 𝑪𝑯𝑨𝑵𝑵𝑬𝑳

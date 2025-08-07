@@ -1,4 +1,3 @@
-const config = require('../config');
 const { cmd } = require('../command');
 
 const stylizedChars = {
@@ -12,48 +11,88 @@ const stylizedChars = {
 
 cmd({
     pattern: "chr",
-    alias: ["creact"],
+    alias: ["creact", "channelreact"],
     react: "🔤",
     desc: "React to channel messages with stylized text",
     category: "owner",
     use: '.chr <channel-link> <text>',
     filename: __filename
 },
-async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isCreator, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply }) => {
+async (conn, mek, m, { from, reply, isCreator, q, prefix }) => {
     try {
-        if (!isCreator) return reply("❌ Owner only command");
-        if (!q) return reply(`Usage:\n${command} https://whatsapp.com/channel/1234567890 hello`);
+        // Permission check
+        if (!isCreator) {
+            return reply("❌ This command is restricted to the bot owner only");
+        }
+
+        // Input validation
+        if (!q) {
+            return reply(`ℹ️ Usage:\n${prefix}chr https://whatsapp.com/channel/1234567890 hello`);
+        }
 
         const [link, ...textParts] = q.split(' ');
-        if (!link.includes("whatsapp.com/channel/")) return reply("Invalid channel link format");
         
-        const inputText = textParts.join(' ').toLowerCase();
-        if (!inputText) return reply("Please provide text to convert");
+        // Channel link validation
+        const channelMatch = link.match(/whatsapp\.com\/channel\/([^\/]+)\/(\d+)/);
+        if (!channelMatch) {
+            return reply("❌ Invalid channel link format\nMust be: https://whatsapp.com/channel/CHANNEL_ID/MESSAGE_ID");
+        }
 
+        const channelId = channelMatch[1];
+        const messageId = channelMatch[2];
+        const inputText = textParts.join(' ').toLowerCase();
+        
+        if (!inputText.trim()) {
+            return reply("❌ Please provide text to convert to emoji reaction");
+        }
+
+        // Convert text to stylized emojis
         const emoji = inputText
             .split('')
-            .map(char => {
-                if (char === ' ') return '―';
-                return stylizedChars[char] || char;
-            })
-            .join('');
+            .map(char => stylizedChars[char] || char)
+            .join('')
+            .replace(/\s+/g, '―'); // Replace spaces with long dash
 
-        const channelId = link.split('/')[4];
-        const messageId = link.split('/')[5];
-        if (!channelId || !messageId) return reply("Invalid link - missing IDs");
+        // Verify channel exists
+        const newsletterJid = `${channelId}@newsletter`;
+        try {
+            await conn.onWhatsApp(newsletterJid);
+        } catch (err) {
+            return reply("❌ Channel not found or inaccessible");
+        }
 
-        const channelMeta = await conn.newsletterMetadata("invite", channelId);
-        await conn.newsletterReactMessage(channelMeta.id, messageId, emoji);
+        // Send reaction using the correct API method
+        try {
+            await conn.sendMessage(newsletterJid, {
+                react: {
+                    text: emoji,
+                    key: {
+                        id: messageId,
+                        remoteJid: newsletterJid,
+                        fromMe: false
+                    }
+                }
+            });
+        } catch (reactError) {
+            console.error("Reaction Error:", reactError);
+            return reply("❌ Failed to send reaction. Possible reasons:\n- Message too old\n- Invalid permissions\n- Channel not accessible");
+        }
 
-        return reply(`╭━━━〔 *CASEYRHODES-XMD* 〕━━━┈⊷
-┃▸ *Success!* Reaction sent
-┃▸ *Channel:* ${channelMeta.name}
-┃▸ *Reaction:* ${emoji}
+        // Success response
+        const successMsg = `╭━━━〔 *CASEYRHODES-XMD* 〕━━━┈⊷
+┃✔ *Success!* Reaction sent
+┃
+┃📢 *Channel ID:* ${channelId}
+┃🔤 *Reaction:* ${emoji}
+┃
+┃*Message ID:* ${messageId}
 ╰────────────────┈⊷
-> *© ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴄᴀsᴇʏʀʜᴏᴅᴇs ᴛᴇᴄʜ 👻*`);
-    } catch (e) {
-        console.error(e);
-        reply(`❎ Error: ${e.message || "Failed to send reaction"}`);
+> *© Powered by CASEYRHODES-TECH*`;
+
+        return reply(successMsg);
+
+    } catch (error) {
+        console.error("Channel React Error:", error);
+        return reply(`❌ Error: ${error.message || "Failed to process request"}`);
     }
 });
-

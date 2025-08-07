@@ -4,7 +4,7 @@ const { runtime } = require('../lib/functions');
 
 cmd({
     pattern: "alive",
-    alias: ["av", "a", "runtime"],
+    alias: ["av", "runtime", "uptime"],
     desc: "Check uptime and system status",
     category: "main",
     react: "📟",
@@ -28,10 +28,22 @@ async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sen
 ┃ *🧬𝖵ᴇʀsɪᴏɴ* : *𝟣.𝟢.𝟢 𝖡𝖤𝖳𝖠*
 ╰──────────────────────┈⊷
 > ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴄᴀsᴇʏʀʜᴏᴅᴇs ᴛᴇᴄʜ`;
-
+              const verifiedContact = {
+            key: {
+                fromMe: false,
+                participant: '0@s.whatsapp.net',
+                remoteJid: 'status@broadcast'
+            },
+            message: {
+                contactMessage: {
+                    displayName: "Caseyrhodes Verified✅",
+                    vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:Caseyrhodes Verified✅\nORG:CASEYRHODES TEAM;\nTEL;type=CELL;type=VOICE;waid=254701234567:+254701234567\nEND:VCARD`
+                  }
+             }  
+        };
         // Send image + caption + audio combined
         await conn.sendMessage(from, { 
-            image: { url: `https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg` },  
+            image: { url: `https://files.catbox.moe/y3j3kl.jpg` },  
             caption: status,
             contextInfo: {
                 mentionedJid: [m.sender],
@@ -41,16 +53,18 @@ async (conn, mek, m, { from, quoted, body, isCmd, command, args, q, isGroup, sen
                     newsletterJid: '120363302677217436@newsletter',
                     newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐀𝐋𝐈𝐕𝐄🍀',
                     serverMessageId: 143
+                   }
                 }
-            }
-        }, { quoted: mek });
+            },
+            { quoted: verifiedContact }
+        );
 
         // Attach audio within the same "quoted" message for grouping
         await conn.sendMessage(from, { 
             audio: { url: 'https://files.catbox.moe/dcxfi1.mp3' },
             mimetype: 'audio/mp4',
             ptt: true 
-        }, { quoted: mek });
+             }, { quoted: verifiedContact });
 
     } catch (e) {
         console.error("Error in alive command:", e);

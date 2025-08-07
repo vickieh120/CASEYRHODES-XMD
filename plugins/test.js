@@ -12,9 +12,9 @@ cmd({
 async (conn, mek, m, { from, quoted, sender, reply }) => {
     try {
         const songUrls = [
-            "https://files.catbox.moe/dcxfi1.mp3",
-            "https://files.catbox.moe/ebkzu5.mp3",
-            "https://files.catbox.moe/iq4ouj.mp3"
+            "https://files.catbox.moe/igdgw1.m4a",
+            "https://files.catbox.moe/65csuc.m4a",
+            "https://files.catbox.moe/lzgyrl.m4a"
             // Add more direct URLs here
         ];
 
@@ -22,25 +22,11 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
 
         const randomUrl = songUrls[Math.floor(Math.random() * songUrls.length)];
 
-        // Fake verified contact as quoted message
-        const fakeContact = {
-            key: {
-                fromMe: false,
-                participant: "0@s.whatsapp.net",
-                remoteJid: "status@broadcast"
-            },
-            message: {
-                contactMessage: {
-                    displayName: "CASEYRHODES-XMD VERIFIED ✅",
-                    vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:CASEYRHODES-XMD\nORG:CASEYRHODES;\nTEL;type=CELL;type=VOICE;waid=254700000000:+254700000000\nEND:VCARD"
-                }
-            }
-        };
-
         await conn.sendMessage(from, {
             audio: { url: randomUrl },
             mimetype: 'audio/mp4',
-            ptt: true,
+            ptt: true, // Voice note style
+            thumbnailUrl: 'https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg', // Add your thumbnail URL here
             contextInfo: {
                 mentionedJid: [sender],
                 forwardingScore: 999,
@@ -49,18 +35,9 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
                     newsletterJid: '120363302677217436@newsletter',
                     newsletterName: "CASEYRHODES TECH 👻",
                     serverMessageId: 143
-                },
-                externalAdReply: {
-                    title: "CASEYRHODES-XMD",
-                    body: "Multi-Device WhatsApp Bot",
-                    thumbnailUrl: "https://files.catbox.moe/y3j3kl.jpg",
-                    mediaType: 1,
-                    renderLargerThumbnail: true,
-                    showAdAttribution: true,
-                    sourceUrl: "https://github.com/caseyweb/CASEYRHODES-XMD"
                 }
             }
-        }, { quoted: fakeContact });
+        }, { quoted: mek });
 
     } catch (e) {
         console.error("Error in test command:", e);

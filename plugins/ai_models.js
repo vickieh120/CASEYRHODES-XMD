@@ -1,137 +1,106 @@
 const { cmd } = require('../command');
 const axios = require('axios');
-const moment = require('moment-timezone');
 
-const fakeContact = {
-  key: {
-    fromMe: false,
-    participant: "0@s.whatsapp.net",
-    remoteJid: "status@broadcast"
-  },
-  message: {
-    contactMessage: {
-      displayName: "CASEYRHODES | CASEYRHODES-XMD",
-      vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:CASEYRHODES | CASEYRHODES-XMD\nORG:CASEYRHODES-XMD;\nTEL;type=CELL;type=VOICE;waid=254700000000:+254 700 000000\nEND:VCARD`,
-      jpegThumbnail: Buffer.alloc(0)
+cmd({
+    pattern: "openai",
+    alias: ["chatgpt", "gpt3", "open-gpt","gpt5"],
+    desc: "Chat with OpenAI",
+    category: "ai",
+    react: "🧠",
+    filename: __filename
+},
+async (conn, mek, m, { from, args, q, reply, react }) => {
+    try {
+        if (!q) return reply("Please provide a message for OpenAI.\nExample: `.openai Hello`");
+
+        const apiUrl = `https://vapis.my.id/api/openai?q=${encodeURIComponent(q)}`;
+        const { data } = await axios.get(apiUrl);
+
+        if (!data || !data.result) {
+            await react("❌");
+            return reply("OpenAI failed to respond. Please try again later.");
+        }
+
+        await reply(`🧠 *OpenAI Response:*\n\n${data.result}`);
+        await react("✅");
+    } catch (e) {
+        console.error("Error in OpenAI command:", e);
+        await react("❌");
+        reply("An error occurred while communicating with OpenAI.");
     }
-  }
-};
-
-const getContextInfo = (title, url, thumb) => ({
-  externalAdReply: {
-    showAdAttribution: true,
-    title: title,
-    body: "CASEYRHODES XMD | Multi-Device WhatsApp Bot",
-    thumbnailUrl: thumb || "https://files.catbox.moe/y3j3kl.jpg",
-    sourceUrl: url || "https://github.com/caseyweb/CASEYRHODES-XMD"
-  },
-  forwardingScore: 999,
-  isForwarded: true,
-  forwardedNewsletterMessageInfo: {
-    newsletterJid: '120363302677217436@newsletter',
-    newsletterName: 'CASEYRHODES-XMD'
-  }
-});
-
-const customReplies = (q) => {
-  const lower = q.toLowerCase();
-  const today = moment().tz("Africa/Nairobi");
-  if (lower.includes("caseyrhodes-xmd")) return "🔥 CASEYRHODES-XMD is a Multi-Device WhatsApp Bot made by *Caseyrhodes*.";
-  if (lower.includes("pkdriller")) return "👑CASEYRHODES-XMD is the official creator of the *Caseyrhodes* WhatsApp bot.";
-  if (lower.includes("channel")) return "📢 Official channel: https://whatsapp.com/channel/0029VakUEfb4o7qVdkwPk83E";
-  if (lower.includes("repo") || lower.includes("github")) return "🔗 GitHub repo: https://github.com/caseyweb/CASEYRHODES-XMD";
-  if (lower.includes("date") || lower.includes("today")) return `📅 Today is ${today.format("dddd, MMMM Do YYYY")}`;
-  if (lower.includes("day")) return `📆 Today is *${today.format("dddd")}*`;
-  return null;
-};
-
-cmd({
-  pattern: "ai",
-  alias: ["bot", "dj", "gpt", "gpt4", "bing"],
-  desc: "Chat with an AI model",
-  category: "ai",
-  react: "🤖",
-  filename: __filename
-},
-async (conn, mek, m, { q, reply, react }) => {
-  try {
-    if (!q) return reply("Please provide a message for the AI.\nExample: `.ai Hello`");
-
-    const fixed = customReplies(q);
-    if (fixed) return await conn.sendMessage(m.chat, { text: fixed, contextInfo: getContextInfo("AI Response") }, { quoted: fakeContact });
-
-    const apiUrl = `https://lance-frank-asta.onrender.com/api/gpt?q=${encodeURIComponent(q)}`;
-    const { data } = await axios.get(apiUrl);
-    if (!data || !data.message) return reply("AI failed to respond.");
-
-    await conn.sendMessage(m.chat, {
-      text: `🤖 *AI Response:*\n\n${data.message}`,
-      contextInfo: getContextInfo("AI Response")
-    }, { quoted: fakeContact });
-
-  } catch (e) {
-    console.error("AI Error:", e);
-    reply("❌ Error occurred.");
-  }
 });
 
 cmd({
-  pattern: "openai",
-  alias: ["chatgpt", "gpt3", "open-gpt"],
-  desc: "Chat with OpenAI",
-  category: "ai",
-  react: "🧠",
-  filename: __filename
+    pattern: "ai",
+    alias: ["bot", "xd", "gpt", "gpt4", "bing"],
+    desc: "Chat with an AI model",
+    category: "ai",
+    react: "🤖",
+    filename: __filename
 },
-async (conn, mek, m, { q, reply, react }) => {
-  try {
-    if (!q) return reply("Please provide a message for OpenAI.\nExample: `.openai Hello`");
+async (conn, mek, m, { from, args, q, reply, react }) => {
+    try {
+        if (!q) return reply("Please provide a message for the AI.\nExample: `.ai Hello`");
 
-    const fixed = customReplies(q);
-    if (fixed) return await conn.sendMessage(m.chat, { text: fixed, contextInfo: getContextInfo("OpenAI Response") }, { quoted: fakeContact });
+        const apiUrl = `https://lance-frank-asta.onrender.com/api/gpt?q=${encodeURIComponent(q)}`;
+        const { data } = await axios.get(apiUrl);
 
-    const apiUrl = `https://vapis.my.id/api/openai?q=${encodeURIComponent(q)}`;
-    const { data } = await axios.get(apiUrl);
-    if (!data || !data.result) return reply("OpenAI failed to respond.");
+        if (!data || !data.message) {
+            await react("❌");
+            return reply("AI failed to respond. Please try again later.");
+        }
+        
+        const status = `🤖 *CASEYRHODES-XMD AI Response:*\n\n${data.message}`;
+        
+        // Send image + caption + audio combined with newsletter info
+        await conn.sendMessage(from, { 
+            image: { url: `https://files.catbox.moe/y3j3kl.jpg` },  
+            caption: status,
+            contextInfo: {
+                mentionedJid: [m.sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐀𝐈 🤖',
+                    serverMessageId: 143
+                }
+            }
+        }, { quoted: mek });
 
-    await conn.sendMessage(m.chat, {
-      text: `🧠 *OpenAI Response:*\n\n${data.result}`,
-      contextInfo: getContextInfo("OpenAI Response")
-    }, { quoted: fakeContact });
-
-  } catch (e) {
-    console.error("OpenAI Error:", e);
-    reply("❌ Error occurred.");
-  }
+        await react("✅");
+    } catch (e) {
+        console.error("Error in AI command:", e);
+        await react("❌");
+        reply("An error occurred while communicating with the AI.");
+    }
 });
-
+         
 cmd({
-  pattern: "deepseek",
-  alias: ["deep", "seekai"],
-  desc: "Chat with DeepSeek AI",
-  category: "ai",
-  react: "🧠",
-  filename: __filename
+    pattern: "deepseek",
+    alias: ["deep", "seekai"],
+    desc: "Chat with DeepSeek AI",
+    category: "ai",
+    react: "👾",
+    filename: __filename
 },
-async (conn, mek, m, { q, reply, react }) => {
-  try {
-    if (!q) return reply("Please provide a message for DeepSeek AI.\nExample: `.deepseek Hello`");
+async (conn, mek, m, { from, args, q, reply, react }) => {
+    try {
+        if (!q) return reply("Please provide a message for DeepSeek AI.\nExample: `.deepseek Hello`");
 
-    const fixed = customReplies(q);
-    if (fixed) return await conn.sendMessage(m.chat, { text: fixed, contextInfo: getContextInfo("DeepSeek Response") }, { quoted: fakeContact });
+        const apiUrl = `https://api.ryzendesu.vip/api/ai/deepseek?text=${encodeURIComponent(q)}`;
+        const { data } = await axios.get(apiUrl);
 
-    const apiUrl = `https://api.ryzendesu.vip/api/ai/deepseek?text=${encodeURIComponent(q)}`;
-    const { data } = await axios.get(apiUrl);
-    if (!data || !data.answer) return reply("DeepSeek failed to respond.");
+        if (!data || !data.answer) {
+            await react("❌");
+            return reply("DeepSeek AI failed to respond. Please try again later.");
+        }
 
-    await conn.sendMessage(m.chat, {
-      text: `🧠 *DeepSeek AI Response:*\n\n${data.answer}`,
-      contextInfo: getContextInfo("DeepSeek Response")
-    }, { quoted: fakeContact });
-
-  } catch (e) {
-    console.error("DeepSeek Error:", e);
-    reply("❌ Error occurred.");
-  }
+        await reply(`👾 *DeepSeek AI Response:*\n\n${data.answer}`);
+        await react("✅");
+    } catch (e) {
+        console.error("Error in DeepSeek AI command:", e);
+        await react("❌");
+        reply("An error occurred while communicating with DeepSeek AI.");
+    }
 });
-      

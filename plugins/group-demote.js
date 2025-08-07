@@ -22,9 +22,9 @@ async(conn, mek, m, {
 
     let number;
     if (m.quoted) {
-        number = m.quoted.sender.split("@")[0]; // If replying to a message, get the sender's number
+        number = m.quoted.sender.split("@")[0];
     } else if (q && q.includes("@")) {
-        number = q.replace(/[@\s]/g, ''); // If manually typing a number
+        number = q.replace(/[@\s]/g, '');
     } else {
         return reply("❌ Please reply to a message or provide a number to demote.");
     }
@@ -36,9 +36,27 @@ async(conn, mek, m, {
 
     try {
         await conn.groupParticipantsUpdate(from, [jid], "demote");
-        reply(`✅ Successfully demoted @${number} to a normal member.`, { mentions: [jid] });
+        
+        await conn.sendMessage(from, {
+            image: { 
+                url: "https://files.catbox.moe/y3j3kl.jpg" 
+            },
+            caption: `✅ Successfully demoted @${number} to a normal member.`,
+            mentions: [jid],
+            contextInfo: {
+                mentionedJid: [jid],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: '120363302677217436@newsletter',
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐃𝐄𝐌𝐎𝐓𝐄',
+                    serverMessageId: 143
+                }
+            }
+        }, { quoted: mek });
+        
     } catch (error) {
         console.error("Demote command error:", error);
-        reply("❌ Failed to demote the member.");
+        reply("❌ Failed to demote the member. Error: " + error.message);
     }
 });

@@ -1,63 +1,75 @@
-const {
-  cmd
-} = require("../command");
+const { cmd } = require("../command");
 const fetch = require("node-fetch");
+
+// Verified Contact
+const quotedContact = {
+  key: {
+    fromMe: false,
+    participant: `0@s.whatsapp.net`,
+    remoteJid: "status@broadcast"
+  },
+  message: {
+    contactMessage: {
+      displayName: "CASEYRHODES VERIFIED ✅",
+      vcard: "BEGIN:VCARD\nVERSION:3.0\nFN:CASEYRHODES VERIFIED ✅\nORG:CASEYRHODES-TECH BOT;\nTEL;type=CELL;type=VOICE;waid=25412192119:+254 121 92119\nEND:VCARD"
+    }
+  }
+};
+
 cmd({
-  'pattern': 'gitclone',
-  'alias': ["git"],
-  'desc': "Download GitHub repository as a zip file.",
-  'react': '📦',
-  'category': "downloader",
-  'filename': __filename
-}, async (_0x359a4d, _0x5b481d, _0x310e0a, {
-  from: _0x421a7d,
-  quoted: _0x163171,
-  args: _0x216653,
-  reply: _0x11eb9d
-}) => {
-  if (!_0x216653[0x0]) {
-    return _0x11eb9d("Where is the GitHub link?\n\nExample:\n.gitclone https://github.com/caseyweb/CASEYRHODES-XMD");
+  pattern: "gitclone",
+  alias: ["git"],
+  desc: "Download GitHub repository as a zip file.",
+  react: "📦",
+  category: "downloader",
+  filename: __filename
+}, async (conn, m, match, { from, quoted, args, reply }) => {
+  const link = args[0];
+  if (!link) return reply("📎 Please provide a GitHub link.\n\nExample:\n.gitclone https://github.com/caseyweb/CASEYRHODES-XMD");
+
+  if (!/^https:\/\/github\.com\/[^\/]+\/[^\/]+/.test(link)) {
+    return reply("⚠️ Invalid GitHub URL.");
   }
-  if (!/^(https:\/\/)?github\.com\/.+/.test(_0x216653[0x0])) {
-    return _0x11eb9d("⚠️ Invalid GitHub link.");
-  }
+
   try {
-    let _0xb5560f = /github\.com\/([^\/]+)\/([^\/]+)(?:\.git)?/i;
-    let [_0x460bcd, _0x5194b2, _0x16a926] = _0x216653[0x0].match(_0xb5560f) || [];
-    if (!_0x5194b2 || !_0x16a926) {
-      throw new Error("Invalid GitHub URL.");
-    }
-    let _0x936878 = "https://api.github.com/repos/" + _0x5194b2 + '/' + _0x16a926 + '/zipball';
-    let _0xe6be44 = await fetch(_0x936878, {
-      'method': "HEAD"
-    });
-    if (!_0xe6be44.ok) {
-      throw new Error("Repository not found.");
-    }
-    let _0x49a379 = _0xe6be44.headers.get("content-disposition");
-    let _0x481150 = _0x49a379 ? _0x49a379.match(/filename=(.*)/)[0x1] : _0x16a926 + ".zip";
-    _0x11eb9d("*📥 CASEYRHODES XMD IS DOWNLOADING REPOSITORY...*\n\n*REPOSITORY:* " + _0x5194b2 + '/' + _0x16a926 + "\n*FILENAME:* " + _0x481150 + "\n\n> *© ℂ𝔸𝕊𝔼𝕐ℝℍ𝕆𝔻𝔼𝕊-𝕏𝕄𝔻👻*");
-    await _0x359a4d.sendMessage(_0x421a7d, {
-      'document': {
-        'url': _0x936878
-      },
-      'fileName': _0x481150 + ".zip",
-      'mimetype': 'application/zip',
-      'contextInfo': {
-        'mentionedJid': [_0x5b481d.sender],
-        'forwardingScore': 0x3e7,
-        'isForwarded': true,
-        'forwardedNewsletterMessageInfo': {
-          'newsletterJid': "120363302677217436@newsletter",
-          'newsletterName': "CASEYRHODES-XMD GITHUB CLONE👻",
-          'serverMessageId': 0x8f
+    const match = link.match(/github\.com\/([^\/]+)\/([^\/]+)(?:\.git)?/i);
+    if (!match) return reply("❌ Couldn't extract repo data.");
+    const user = match[1], repo = match[2];
+
+    const downloadURL = `https://api.github.com/repos/${user}/${repo}/zipball`;
+    const headCheck = await fetch(downloadURL, { method: "HEAD" });
+
+    if (!headCheck.ok) throw new Error("Repository not found.");
+
+    const filenameHeader = headCheck.headers.get("content-disposition");
+    const fileName = filenameHeader ? filenameHeader.match(/filename="?(.+?)"?$/)?.[1] : `${repo}.zip`;
+
+    await reply(`╭───〔 *CASEYRHODES XMD GIT CLONE* 〕───⬣
+│
+│ 📁 *User:* ${user}
+│ 📦 *Repo:* ${repo}
+│ 📎 *Filename:* ${fileName}
+│
+╰───⬣ Downloading...`);
+
+    await conn.sendMessage(from, {
+      document: { url: downloadURL },
+      fileName: `${fileName}.zip`,
+      mimetype: 'application/zip',
+      contextInfo: {
+        mentionedJid: [m.sender],
+        forwardingScore: 999,
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+          newsletterJid: "120363302677217436@newsletter",
+          newsletterName: "CASEYRHODES XMD GITHUB CLONE 👻",
+          serverMessageId: 143
         }
       }
-    }, {
-      'quoted': _0x5b481d
-    });
-  } catch (_0x12ae9b) {
-    console.error(_0x12ae9b);
-    _0x11eb9d("❌ Failed to download the repository. Please try again later.");
+    }, { quoted: quotedContact });
+
+  } catch (e) {
+    console.error("❌ GitClone Error:", e);
+    return reply("❌ Failed to download repository.\nCheck the link or try later.");
   }
 });
