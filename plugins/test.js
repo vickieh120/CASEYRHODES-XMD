@@ -4,7 +4,7 @@ cmd({
     pattern: "test",
     alias: [],
     use: '.test',
-    desc: "Send a random voice note from URL.",
+    desc: "Send a random voice note with image.",
     category: "fun",
     react: "🎙️",
     filename: __filename
@@ -15,20 +15,17 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
             "https://files.catbox.moe/igdgw1.m4a",
             "https://files.catbox.moe/65csuc.m4a",
             "https://files.catbox.moe/lzgyrl.m4a"
-            // Add more direct URLs here
         ];
 
-        if (!songUrls.length) return reply("No song URLs configured.");
+        if (!songUrls.length) return reply("No audio URLs configured.");
 
         const randomUrl = songUrls[Math.floor(Math.random() * songUrls.length)];
-        const status = "🎧 Here's a random audio for you! 🎶";
+        const status = "🎧 *Here's a special audio for you!* 🎶\n\n_From Casey Rhodes Newsletter_";
 
-        // Send image + caption + audio combined
-        await conn.sendMessage(from, { 
-            image: { url: "https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg" },  
+        // First send the image with caption
+        await conn.sendMessage(from, {
+            image: { url: "https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg" },
             caption: status,
-            audio: { url: randomUrl },
-            mimetype: 'audio/mp4',
             contextInfo: {
                 mentionedJid: [sender],
                 forwardingScore: 999,
@@ -39,6 +36,13 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
                     serverMessageId: 143
                 }
             }
+        }, { quoted: mek });
+
+        // Then send the audio
+        await conn.sendMessage(from, {
+            audio: { url: randomUrl },
+            mimetype: 'audio/mp4',
+            ptt: false
         }, { quoted: mek });
 
     } catch (e) {
