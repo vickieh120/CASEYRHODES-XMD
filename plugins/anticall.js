@@ -1,4 +1,4 @@
-const settingsManager = require('../lib/settingsmanager'); // Path to your settings manager
+
 const { cmd } = require('../command'); // Adjust path as needed to your command registration
 
 cmd({
