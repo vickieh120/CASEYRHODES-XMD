@@ -4,9 +4,9 @@ cmd({
     pattern: "test",
     alias: [],
     use: '.test',
-    desc: "Send a random voice note with image.",
+    desc: "Send audio with image in one message",
     category: "fun",
-    react: "🎙️",
+    react: "🎧",
     filename: __filename
 },
 async (conn, mek, m, { from, quoted, sender, reply }) => {
@@ -17,15 +17,16 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
             "https://files.catbox.moe/lzgyrl.m4a"
         ];
 
-        if (!songUrls.length) return reply("No audio URLs configured.");
-
+        if (!songUrls.length) return reply("No audio files available");
+        
         const randomUrl = songUrls[Math.floor(Math.random() * songUrls.length)];
-        const status = "🎧 *Here's a special audio for you!* 🎶\n\n_From Casey Rhodes Newsletter_";
+        const status = "🎧 *Enjoy this special audio!* 🎶\n\n_From Casey Rhodes Newsletter_";
 
-        // First send the image with caption
         await conn.sendMessage(from, {
             image: { url: "https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg" },
             caption: status,
+            audio: { url: randomUrl },
+            mimetype: 'audio/mp4',
             contextInfo: {
                 mentionedJid: [sender],
                 forwardingScore: 999,
@@ -36,17 +37,14 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
                     serverMessageId: 143
                 }
             }
-        }, { quoted: mek });
-
-        // Then send the audio
-        await conn.sendMessage(from, {
-            audio: { url: randomUrl },
-            mimetype: 'audio/mp4',
-            ptt: false
-        }, { quoted: mek });
+        }, { 
+            quoted: mek,
+            ephemeralExpiration: 86400, // 24 hours
+            mediaUploadTimeoutMs: 60000 // 1 minute upload timeout
+        });
 
     } catch (e) {
         console.error("Error in test command:", e);
-        reply(`An error occurred: ${e.message}`);
+        reply(`❌ Error: ${e.message}\n\nPlease try again later.`);
     }
 });
