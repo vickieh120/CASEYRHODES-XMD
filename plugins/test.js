@@ -21,19 +21,21 @@ async (conn, mek, m, { from, quoted, sender, reply }) => {
         if (!songUrls.length) return reply("No song URLs configured.");
 
         const randomUrl = songUrls[Math.floor(Math.random() * songUrls.length)];
+        const status = "🎧 Here's a random audio for you! 🎶";
 
-        await conn.sendMessage(from, {
+        // Send image + caption + audio combined
+        await conn.sendMessage(from, { 
+            image: { url: "https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg" },  
+            caption: status,
             audio: { url: randomUrl },
             mimetype: 'audio/mp4',
-            ptt: true, // Voice note style
-            thumbnailUrl: 'https://i.ibb.co/wN6Gw0ZF/lordcasey.jpg', // Add your thumbnail URL here
             contextInfo: {
                 mentionedJid: [sender],
                 forwardingScore: 999,
                 isForwarded: true,
                 forwardedNewsletterMessageInfo: {
                     newsletterJid: '120363302677217436@newsletter',
-                    newsletterName: "CASEYRHODES TECH 👻",
+                    newsletterName: '𝐂𝐀𝐒𝐄𝐘𝐑𝐇𝐎𝐃𝐄𝐒 𝐀𝐋𝐈𝐕𝐄🍀',
                     serverMessageId: 143
                 }
             }
