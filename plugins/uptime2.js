@@ -15,12 +15,9 @@ cmd({
 },
 async (conn, mek, m, { from, args, reply }) => {
     try {
-        // Check if user is authorized (bot owner)
-        const sender = mek.key.participant ? mek.key.participant : mek.key.remoteJid;
-        const senderNumber = sender.split('@')[0].replace('+', '');
-        
-        if (senderNumber !== config.SUDO) {
-            return reply("❌ This command is only available for bot owner!");
+        // Check if auto-bio is enabled in config
+        if (config.AUTO_BIO !== true) {
+            return reply("❌ Auto-bio feature is disabled in configuration!");
         }
 
         const action = args[0]?.toLowerCase();
