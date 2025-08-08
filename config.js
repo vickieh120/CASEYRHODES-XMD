@@ -32,6 +32,13 @@ MENTION_REPLY: process.env.MENTION_REPLY || "false",
 MENU_IMAGE_URL: process.env.MENU_IMAGE_URL || "https://files.catbox.moe/52dotx.jpg",
 // add custom menu and mention reply image url
 PREFIX: process.env.PREFIX || ".",
+    // config.js
+module.exports = {
+    // Bot owner numbers (with country code, without '+')
+    SUDO: ["254101022551", "254112192119"],  // Replace with your authorized numbers
+    
+    // Timezone for the auto-bio feature
+    TIME_ZONE: "Asia/Kolkata",  // Change to your preferred timezone
 // add your prifix for bot   
 BOT_NAME: process.env.BOT_NAME || "CASEYRHODES-MD",
 // add bot namw here for menu
