@@ -20,6 +20,11 @@ async (conn, mek, m, { from, args, reply }) => {
             return reply("❌ Auto-bio feature is disabled in configuration!");
         }
 
+        // Check if time zone is enabled in config
+        if (config.TIME_ZONE !== true) {
+            return reply("❌ Time zone feature is disabled in configuration!");
+        }
+
         const action = args[0]?.toLowerCase();
         
         if (action === "on") {
@@ -67,8 +72,8 @@ async function updateBio(conn) {
     try {
         if (!isAutoBioEnabled) return;
         
-        // Get current time in configured timezone
-        const timezone = config.TIME_ZONE || "Asia/Kolkata";
+        // Get current time - default to Asia/Kolkata if TIME_ZONE is not specified
+        const timezone = config.TIME_ZONE === true ? (config.TZ || "Asia/Kolkata") : "Asia/Kolkata";
         const time = moment().tz(timezone).format('h:mm A');
         const date = moment().tz(timezone).format('DD/MM/YYYY');
         
