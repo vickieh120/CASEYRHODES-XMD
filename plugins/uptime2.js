@@ -1,6 +1,6 @@
 const { cmd } = require('../command');
 const moment = require('moment-timezone');
-const config = require('../../config');
+const config = require('../config');
 
 // Global variables to track auto-bio state
 let autoBioInterval = null;
