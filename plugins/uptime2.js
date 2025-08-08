@@ -19,7 +19,7 @@ async (conn, mek, m, { from, args, reply }) => {
         const sender = mek.key.participant ? mek.key.participant : mek.key.remoteJid;
         const senderNumber = sender.split('@')[0].replace('+', '');
         
-        if (!config.SUDO.includes(senderNumber)) {
+        if (senderNumber !== config.SUDO) {
             return reply("❌ This command is only available for bot owner!");
         }
 
