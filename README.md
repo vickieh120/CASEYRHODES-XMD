@@ -47,6 +47,10 @@
 
 ---
 
+<h1 align="left">
+  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=30&duration=6000&color=00FF00&background=000000&center=true&vCenter=true&width=600&lines=⚡+CASEYRHODES+MD+BETTER+OPTION;🔥+THE+MOST+POWERFUL+WHATSAPP+BOT;💻+DEVELOPER+BY+MR+CASEYRHODES;🚀+CASEYRHODES-XMD+SOLUTIONS;🌈+FAST+⚡+SECURE+🔒+RELIABLE+✅" alt="Typing Animation">
+</h1>
+
 ### 1. Fork This Repository
 
 Start by forking this repository to your own GitHub account. Click the button below to fork:
